@@ -1,11 +1,12 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import Login from './component/common/login'
+import Login from './component/common/login';
+import SignUp from './component/common/signUp';
+import ForgotPassword from './component/common/forgotPassword';
 
 // Placeholder pages — replace with your actual components
 const Dashboard = () => <div className="p-8 text-xl font-bold">Dashboard (Coming Soon)</div>
 const Register = () => <div className="p-8 text-xl font-bold">Register (Coming Soon)</div>
-const ForgotPassword = () => <div className="p-8 text-xl font-bold">Forgot Password (Coming Soon)</div>
 
 // Simple auth guard — replace with your actual auth logic (context/redux/jwt check)
 const PrivateRoute = ({ children }) => {
@@ -19,7 +20,7 @@ const App = () => {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/register" element={<SignUp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* Protected Routes */}
