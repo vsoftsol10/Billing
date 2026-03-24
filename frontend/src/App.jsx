@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './component/common/login';
 import SignUp from './component/common/signUp';
 import ForgotPassword from './component/common/forgotPassword';
+import DashboardPage from './pages/Dashboard';
 
 // Placeholder pages — replace with your actual components
 const Dashboard = () => <div className="p-8 text-xl font-bold">Dashboard (Coming Soon)</div>
@@ -28,7 +29,7 @@ const App = () => {
           path="/dashboard"
           element={
             <PrivateRoute>
-              <Dashboard />
+              <DashboardPage />
             </PrivateRoute>
           }
         />
