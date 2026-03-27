@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const navItems = [
   {
@@ -107,6 +108,31 @@ const navItems = [
 ]
 
 const Sidebar = ({ activeItem = 'Dashboard', onNavigate }) => {
+  const navigate = useNavigate()
+
+  const handleNavigation = (label) => {
+    onNavigate && onNavigate(label)
+    
+    const routeMap = {
+      'Dashboard': '/dashboard',
+      'Invoice': '/invoice',
+      'Purchase': '/purchase',
+      'Quotation': '/quotation',
+      'Sales': '/sales',
+      'GST': '/gst',
+      'Online Store': '/online-store',
+      'E-way Bills': '/eway-bills',
+      'Tally Sync': '/tally-sync',
+      'Product & Service': '/product-service',
+      'Inventory': '/inventory',
+      'Invite User': '/invite-user',
+    }
+    
+    if (routeMap[label]) {
+      navigate(routeMap[label])
+    }
+  }
+
   return (
     <aside className="w-52 min-h-screen bg-white border-r border-gray-100 flex flex-col py-4 shrink-0">
       {/* Logo */}
@@ -133,7 +159,7 @@ const Sidebar = ({ activeItem = 'Dashboard', onNavigate }) => {
           return (
             <button
               key={item.label}
-              onClick={() => onNavigate && onNavigate(item.label)}
+              onClick={() => handleNavigation(item.label)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 text-left
                 ${isActive
                   ? 'bg-amber-400 text-gray-900 shadow-sm'
@@ -149,7 +175,6 @@ const Sidebar = ({ activeItem = 'Dashboard', onNavigate }) => {
         })}
       </nav>
     </aside>
-  )
-}
+  )}
 
-export default Sidebar
+export default Sidebar;

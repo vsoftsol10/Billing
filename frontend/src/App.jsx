@@ -4,10 +4,7 @@ import Login from './component/common/login';
 import SignUp from './component/common/signUp';
 import ForgotPassword from './component/common/forgotPassword';
 import DashboardPage from './pages/Dashboard';
-
-// Placeholder pages — replace with your actual components
-const Dashboard = () => <div className="p-8 text-xl font-bold">Dashboard (Coming Soon)</div>
-const Register = () => <div className="p-8 text-xl font-bold">Register (Coming Soon)</div>
+import Invoice from './pages/Invoice';
 
 // Simple auth guard — replace with your actual auth logic (context/redux/jwt check)
 const PrivateRoute = ({ children }) => {
@@ -34,8 +31,16 @@ const App = () => {
           }
         />
 
+        <Route
+          path="/invoice"
+          element={
+            <PrivateRoute>
+              <Invoice />
+            </PrivateRoute>
+          }
+        />
+
         {/* Default redirect */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
