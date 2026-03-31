@@ -14,6 +14,8 @@ const DUMMY_INVOICES = [
   { id: 'INV-010', client: 'Jupiter & Co', amount: '₹8,100', date: '2025-01-07', gstNo: '32MNOPQ8901W0X4', status: 'Draft' },
   { id: 'INV-011', client: 'Kestrel Infra', amount: '₹94,500', date: '2025-02-14', gstNo: '21ABCDE3456Y1Z5', status: 'Pending' },
   { id: 'INV-012', client: 'Luminary Pvt', amount: '₹37,600', date: '2025-03-25', gstNo: '07XYZAB7890A2B6', status: 'Cancelled' },
+  { id: 'INV-012', client: 'Luminary Pvt', amount: '₹45,600', date: '2026-03-25', gstNo: '07XYZAB7890A2B6', status: 'Pending' },
+  { id: 'INV-012', client: 'Luminary Pvt', amount: '₹45,600', date: '2026-03-25', gstNo: '07XYZAB7890A2B6', status: 'Open' },
 ]
 
 const FINANCIAL_YEARS = [
