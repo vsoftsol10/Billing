@@ -111,41 +111,104 @@ const navItems = [
 
 const ChevronIcon = ({ open }) => (
   <svg
-    width="13"
-    height="13"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    style={{
-      transition: 'transform 0.2s ease',
-      transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
-    }}
+    width="13" height="13" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+    style={{ transition: 'transform 0.2s ease', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
   >
     <polyline points="6 9 12 15 18 9" />
   </svg>
 )
 
+const CloseIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+)
+
 const routeMap = {
-  'Dashboard': '/dashboard',
-  'Sales': '/sales',
-  'Invoice': '/invoice',
-  'Quotation': '/quotation',
-  'Purchase': '/purchase',
-  'GST': '/gst',
-  'Online Store': '/online-store',
-  'E-way Bills': '/eway-bills',
-  'Tally Sync': '/tally-sync',
-  'Product & Service': '/product-service',
-  'Inventory': '/inventory',
-  'Invite User': '/invite-user',
+  'Dashboard': '/dashboard', 'Sales': '/sales', 'Invoice': '/invoice',
+  'Quotation': '/quotation', 'Purchase': '/purchase', 'GST': '/gst',
+  'Online Store': '/online-store', 'E-way Bills': '/eway-bills',
+  'Tally Sync': '/tally-sync', 'Product & Service': '/product-service',
+  'Inventory': '/inventory', 'Invite User': '/invite-user',
 }
 
-const Sidebar = ({ activeItem = 'Dashboard', onNavigate }) => {
+const SidebarContent = ({ activeItem, handleNavigation, openDropdowns, toggleDropdown, onClose }) => (
+  <div className="flex flex-col h-full">
+    {/* Logo */}
+    <div className="px-5 py-4 flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 bg-amber-400 rounded-lg flex items-center justify-center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white"/>
+          </svg>
+        </div>
+        <span style={{ fontFamily: 'Sora, sans-serif' }} className="text-base font-bold text-gray-900 tracking-tight">
+          <span className="text-amber-500">V</span>Bill
+        </span>
+      </div>
+      {/* Close button — visible only on mobile */}
+      {onClose && (
+        <button onClick={onClose} className="lg:hidden p-1 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+          <CloseIcon />
+        </button>
+      )}
+    </div>
+
+    {/* Nav */}
+    <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto pb-4">
+      {navItems.map((item) => {
+        const hasChildren = item.children && item.children.length > 0
+        const isOpen = !!openDropdowns[item.label]
+        const isActive = activeItem === item.label
+        const isParentHighlighted = isActive || (hasChildren && item.children.some((c) => c.label === activeItem))
+
+        return (
+          <div key={item.label}>
+            <button
+              onClick={() => {
+                if (hasChildren) { toggleDropdown(item.label) }
+                else { handleNavigation(item.label); onClose && onClose() }
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 text-left
+                ${isParentHighlighted ? 'bg-amber-400 text-gray-900 shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'}`}
+            >
+              <span className={isParentHighlighted ? 'text-gray-900' : 'text-gray-400'}>{item.icon}</span>
+              <span className="flex-1">{item.label}</span>
+              {hasChildren && (
+                <span className={isParentHighlighted ? 'text-gray-700' : 'text-gray-400'}>
+                  <ChevronIcon open={isOpen} />
+                </span>
+              )}
+            </button>
+
+            {hasChildren && isOpen && (
+              <div className="mt-0.5 ml-3 pl-3 border-l-2 border-amber-200 space-y-0.5">
+                {item.children.map((child) => {
+                  const isChildActive = activeItem === child.label
+                  return (
+                    <button
+                      key={child.label}
+                      onClick={() => { handleNavigation(child.label); onClose && onClose() }}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 text-left
+                        ${isChildActive ? 'bg-amber-100 text-amber-800' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'}`}
+                    >
+                      <span className={isChildActive ? 'text-amber-600' : 'text-gray-400'}>{child.icon}</span>
+                      {child.label}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </nav>
+  </div>
+)
+
+const Sidebar = ({ activeItem = 'Dashboard', onNavigate, mobileOpen, onMobileClose }) => {
   const navigate = useNavigate()
-  // Auto-open Sales dropdown if a child is active
   const salesChildren = ['Invoice', 'Quotation']
   const [openDropdowns, setOpenDropdowns] = useState(() =>
     salesChildren.includes(activeItem) ? { Sales: true } : {}
@@ -161,90 +224,48 @@ const Sidebar = ({ activeItem = 'Dashboard', onNavigate }) => {
   }
 
   return (
-    <aside className="w-52 min-h-screen bg-white border-r border-gray-100 flex flex-col py-4 shrink-0">
-      {/* Logo */}
-      <div className="px-5 mb-6">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-amber-400 rounded-lg flex items-center justify-center">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white"/>
-            </svg>
-          </div>
-          <span
-            style={{ fontFamily: 'Sora, sans-serif' }}
-            className="text-base font-bold text-gray-900 tracking-tight"
+    <>
+      {/* ── Desktop sidebar (lg+): always visible ── */}
+      <aside className="hidden lg:flex w-52 min-h-screen bg-white border-r border-gray-100 flex-col shrink-0">
+        <SidebarContent
+          activeItem={activeItem}
+          handleNavigation={handleNavigation}
+          openDropdowns={openDropdowns}
+          toggleDropdown={toggleDropdown}
+        />
+      </aside>
+
+      {/* ── Mobile / Tablet drawer overlay ── */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-40 flex">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={onMobileClose}
+          />
+          {/* Drawer panel */}
+          <aside
+            className="relative z-50 w-64 max-w-[80vw] min-h-screen bg-white flex flex-col shadow-2xl"
+            style={{ animation: 'slideInLeft 0.22s ease' }}
           >
-            <span className="text-amber-500">V</span>Bill
-          </span>
+            <SidebarContent
+              activeItem={activeItem}
+              handleNavigation={handleNavigation}
+              openDropdowns={openDropdowns}
+              toggleDropdown={toggleDropdown}
+              onClose={onMobileClose}
+            />
+          </aside>
         </div>
-      </div>
+      )}
 
-      {/* Nav */}
-      <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => {
-          const hasChildren = item.children && item.children.length > 0
-          const isOpen = !!openDropdowns[item.label]
-          const isActive = activeItem === item.label
-          // Parent is "active-styled" if it's directly active OR a child is active
-          const isParentHighlighted =
-            isActive || (hasChildren && item.children.some((c) => c.label === activeItem))
-
-          return (
-            <div key={item.label}>
-              <button
-                onClick={() => {
-                  if (hasChildren) {
-                    toggleDropdown(item.label)
-                  } else {
-                    handleNavigation(item.label)
-                  }
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 text-left
-                  ${isParentHighlighted
-                    ? 'bg-amber-400 text-gray-900 shadow-sm'
-                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
-                  }`}
-              >
-                <span className={isParentHighlighted ? 'text-gray-900' : 'text-gray-400'}>
-                  {item.icon}
-                </span>
-                <span className="flex-1">{item.label}</span>
-                {hasChildren && (
-                  <span className={isParentHighlighted ? 'text-gray-700' : 'text-gray-400'}>
-                    <ChevronIcon open={isOpen} />
-                  </span>
-                )}
-              </button>
-
-              {/* Children */}
-              {hasChildren && isOpen && (
-                <div className="mt-0.5 ml-3 pl-3 border-l-2 border-amber-200 space-y-0.5">
-                  {item.children.map((child) => {
-                    const isChildActive = activeItem === child.label
-                    return (
-                      <button
-                        key={child.label}
-                        onClick={() => handleNavigation(child.label)}
-                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 text-left
-                          ${isChildActive
-                            ? 'bg-amber-100 text-amber-800'
-                            : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
-                          }`}
-                      >
-                        <span className={isChildActive ? 'text-amber-600' : 'text-gray-400'}>
-                          {child.icon}
-                        </span>
-                        {child.label}
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </nav>
-    </aside>
+      <style>{`
+        @keyframes slideInLeft {
+          from { transform: translateX(-100%); opacity: 0; }
+          to   { transform: translateX(0);     opacity: 1; }
+        }
+      `}</style>
+    </>
   )
 }
 

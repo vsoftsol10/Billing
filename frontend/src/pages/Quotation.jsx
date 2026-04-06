@@ -10,6 +10,7 @@ const Quotation = () => {
   const [activeTab, setActiveTab] = useState('All')
   const [searchText, setSearchText] = useState('')
   const [sidebarActive, setSidebarActive] = useState('Quotation')
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [timeFrame, setTimeFrame] = useState('All')
   const [selectedYear, setSelectedYear] = useState('')
@@ -75,10 +76,20 @@ const Quotation = () => {
 
   return (
     <div className="flex bg-gray-50 min-h-screen">
-      <Sidebar activeItem={sidebarActive} onNavigate={setSidebarActive} />
+      <Sidebar
+        activeItem={sidebarActive}
+        onNavigate={setSidebarActive}
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
+      />
       <div className="flex-1 flex flex-col">
-        <Navbar title="Quotation" subtitle={true} user="VBILL" />
-        <main className="flex-1 p-7 overflow-auto">
+        <Navbar
+          title="Quotation"
+          subtitle={true}
+          user="VBILL"
+          onMenuToggle={() => setMobileSidebarOpen(true)}
+        />
+        <main className="flex-1 p-4 sm:p-7 overflow-auto">
           <QuotationHeader onCreateQuotation={handleCreateQuotation} />
           {/* <QuotationTabs activeTab={activeTab} onTabChange={handleTabChange} /> */}
           <QuotationFilters
