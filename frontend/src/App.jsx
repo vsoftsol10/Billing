@@ -5,6 +5,7 @@ import SignUp from './component/common/signUp';
 import ForgotPassword from './component/common/forgotPassword';
 import DashboardPage from './pages/Dashboard';
 import Invoice from './pages/Invoice';
+import Quotation from './pages/Quotation';
 
 // Simple auth guard — replace with your actual auth logic (context/redux/jwt check)
 const PrivateRoute = ({ children }) => {
@@ -36,6 +37,15 @@ const App = () => {
           element={
             <PrivateRoute>
               <Invoice />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/quotation"
+          element={
+            <PrivateRoute>
+              <Quotation />
             </PrivateRoute>
           }
         />

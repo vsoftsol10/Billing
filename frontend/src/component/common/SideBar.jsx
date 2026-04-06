@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 const navItems = [
   {
-    label: 'Dashboard', active: true,
+    label: 'Dashboard',
     icon: (
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -12,13 +12,31 @@ const navItems = [
     ),
   },
   {
-    label: 'Invoice',
+    label: 'Sales',
     icon: (
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-        <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>
+        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
       </svg>
     ),
+    children: [
+      {
+        label: 'Invoice',
+        icon: (
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>
+          </svg>
+        ),
+      },
+      {
+        label: 'Quotation',
+        icon: (
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        ),
+      },
+    ],
   },
   {
     label: 'Purchase',
@@ -26,22 +44,6 @@ const navItems = [
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-      </svg>
-    ),
-  },
-  {
-    label: 'Quotation',
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      </svg>
-    ),
-  },
-  {
-    label: 'Sales',
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
       </svg>
     ),
   },
@@ -107,30 +109,55 @@ const navItems = [
   },
 ]
 
+const ChevronIcon = ({ open }) => (
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{
+      transition: 'transform 0.2s ease',
+      transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+    }}
+  >
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+)
+
+const routeMap = {
+  'Dashboard': '/dashboard',
+  'Sales': '/sales',
+  'Invoice': '/invoice',
+  'Quotation': '/quotation',
+  'Purchase': '/purchase',
+  'GST': '/gst',
+  'Online Store': '/online-store',
+  'E-way Bills': '/eway-bills',
+  'Tally Sync': '/tally-sync',
+  'Product & Service': '/product-service',
+  'Inventory': '/inventory',
+  'Invite User': '/invite-user',
+}
+
 const Sidebar = ({ activeItem = 'Dashboard', onNavigate }) => {
   const navigate = useNavigate()
+  // Auto-open Sales dropdown if a child is active
+  const salesChildren = ['Invoice', 'Quotation']
+  const [openDropdowns, setOpenDropdowns] = useState(() =>
+    salesChildren.includes(activeItem) ? { Sales: true } : {}
+  )
 
   const handleNavigation = (label) => {
     onNavigate && onNavigate(label)
-    
-    const routeMap = {
-      'Dashboard': '/dashboard',
-      'Invoice': '/invoice',
-      'Purchase': '/purchase',
-      'Quotation': '/quotation',
-      'Sales': '/sales',
-      'GST': '/gst',
-      'Online Store': '/online-store',
-      'E-way Bills': '/eway-bills',
-      'Tally Sync': '/tally-sync',
-      'Product & Service': '/product-service',
-      'Inventory': '/inventory',
-      'Invite User': '/invite-user',
-    }
-    
-    if (routeMap[label]) {
-      navigate(routeMap[label])
-    }
+    if (routeMap[label]) navigate(routeMap[label])
+  }
+
+  const toggleDropdown = (label) => {
+    setOpenDropdowns((prev) => ({ ...prev, [label]: !prev[label] }))
   }
 
   return (
@@ -155,26 +182,70 @@ const Sidebar = ({ activeItem = 'Dashboard', onNavigate }) => {
       {/* Nav */}
       <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => {
-          const isActive = (activeItem || 'Dashboard') === item.label
+          const hasChildren = item.children && item.children.length > 0
+          const isOpen = !!openDropdowns[item.label]
+          const isActive = activeItem === item.label
+          // Parent is "active-styled" if it's directly active OR a child is active
+          const isParentHighlighted =
+            isActive || (hasChildren && item.children.some((c) => c.label === activeItem))
+
           return (
-            <button
-              key={item.label}
-              onClick={() => handleNavigation(item.label)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 text-left
-                ${isActive
-                  ? 'bg-amber-400 text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
-                }`}
-            >
-              <span className={isActive ? 'text-gray-900' : 'text-gray-400'}>
-                {item.icon}
-              </span>
-              {item.label}
-            </button>
+            <div key={item.label}>
+              <button
+                onClick={() => {
+                  if (hasChildren) {
+                    toggleDropdown(item.label)
+                  } else {
+                    handleNavigation(item.label)
+                  }
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 text-left
+                  ${isParentHighlighted
+                    ? 'bg-amber-400 text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+                  }`}
+              >
+                <span className={isParentHighlighted ? 'text-gray-900' : 'text-gray-400'}>
+                  {item.icon}
+                </span>
+                <span className="flex-1">{item.label}</span>
+                {hasChildren && (
+                  <span className={isParentHighlighted ? 'text-gray-700' : 'text-gray-400'}>
+                    <ChevronIcon open={isOpen} />
+                  </span>
+                )}
+              </button>
+
+              {/* Children */}
+              {hasChildren && isOpen && (
+                <div className="mt-0.5 ml-3 pl-3 border-l-2 border-amber-200 space-y-0.5">
+                  {item.children.map((child) => {
+                    const isChildActive = activeItem === child.label
+                    return (
+                      <button
+                        key={child.label}
+                        onClick={() => handleNavigation(child.label)}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 text-left
+                          ${isChildActive
+                            ? 'bg-amber-100 text-amber-800'
+                            : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+                          }`}
+                      >
+                        <span className={isChildActive ? 'text-amber-600' : 'text-gray-400'}>
+                          {child.icon}
+                        </span>
+                        {child.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           )
         })}
       </nav>
     </aside>
-  )}
+  )
+}
 
-export default Sidebar;
+export default Sidebar

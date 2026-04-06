@@ -89,7 +89,7 @@ const Invoice = () => {
         <main className="flex-1 p-7 overflow-auto">
           <InvoiceHeader onCreateInvoice={handleCreateInvoice} />
           
-          <InvoiceStats stats={stats} />
+          {/* <InvoiceStats stats={stats} /> */}
           
           <InvoiceFilters 
             onFilterChange={handleFilterChange} 

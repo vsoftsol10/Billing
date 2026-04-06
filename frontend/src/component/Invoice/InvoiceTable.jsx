@@ -44,9 +44,9 @@ const getStatusIcon = (status) => {
     'Pending':   '▼',
     'Open':      '▼',
     'Update':    '▼',
-    'Paid':      '✓',
-    'Cancelled': '✕',
-    'Draft':     '○',
+    'Paid':      '▼',
+    'Cancelled': '▼',
+    'Draft':     '▼',
   }
   return icons[status] || '○'
 }
