@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 
-const weekData = [15, 28, 22, 35, 42, 38, 55]
+const weekData  = [15, 28, 22, 35, 42, 38, 55]
 const monthData = [20, 45, 30, 50, 40, 60, 75, 55, 65, 80, 70, 90, 82, 95, 78, 88, 65, 72, 85, 92, 78, 88, 72, 80, 91, 85, 78, 88, 92, 98]
 
-const weekDays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+const weekDays   = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
 const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 const buildPath = (data, w, h, pad = 20) => {
@@ -26,34 +26,39 @@ const buildPath = (data, w, h, pad = 20) => {
 const RevenueChart = () => {
   const [tab, setTab] = useState('MONTH')
 
-  const raw = tab === 'MONTH' ? monthData : weekData
-  const xLabels = tab === 'WEEK' ? weekDays : monthNames
+  const raw     = tab === 'MONTH' ? monthData : weekData
+  const xLabels = tab === 'WEEK'  ? weekDays  : monthNames
 
   const W = 1000, H = 200
   const { line, area, xs, ys } = buildPath(raw, W, H)
 
   const yLabels = ['2 K', '10 K', '50 K', '60 K', '90 K']
 
-  // Pick evenly spaced label indices so they don't crowd
-  const labelCount = tab === 'WEEK' ? xLabels.length : 12
+  const labelCount   = tab === 'WEEK' ? xLabels.length : 12
   const labelIndices = Array.from({ length: labelCount }, (_, i) =>
     Math.round((i / (labelCount - 1)) * (xLabels.length - 1))
   )
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-6">
+    <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <p style={{ fontFamily: 'Sora, sans-serif' }} className="text-sm font-bold text-gray-700 tracking-wide uppercase">
+      <div className="flex items-center justify-between mb-4 sm:mb-5 gap-2 flex-wrap">
+        <p
+          style={{ fontFamily: 'Sora, sans-serif' }}
+          className="text-sm font-bold text-gray-700 tracking-wide uppercase"
+        >
           Revenue Overview
         </p>
-        <div className="flex rounded-xl border border-gray-100 overflow-hidden">
+        <div className="flex rounded-xl border border-gray-100 overflow-hidden shrink-0">
           {['MONTH', 'WEEK'].map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-4 py-1.5 text-xs font-semibold transition-all duration-150
-                ${tab === t ? 'bg-amber-400 text-gray-900' : 'bg-white text-gray-400 hover:text-gray-700'}`}
+              className={`px-3 sm:px-4 py-1.5 text-xs font-semibold transition-all duration-150 ${
+                tab === t
+                  ? 'bg-amber-400 text-gray-900'
+                  : 'bg-white text-gray-400 hover:text-gray-700'
+              }`}
             >
               {t}
             </button>
@@ -62,9 +67,9 @@ const RevenueChart = () => {
       </div>
 
       {/* Chart */}
-      <div className="flex gap-3">
-        {/* Y labels */}
-        <div className="flex flex-col justify-between text-xs text-gray-300 font-medium pb-6 text-right w-10 shrink-0">
+      <div className="flex gap-2 sm:gap-3">
+        {/* Y labels — hidden on very small screens */}
+        <div className="hidden xs:flex flex-col justify-between text-xs text-gray-300 font-medium pb-6 text-right w-8 sm:w-10 shrink-0">
           {[...yLabels].reverse().map(l => <span key={l}>{l}</span>)}
         </div>
 
@@ -72,35 +77,36 @@ const RevenueChart = () => {
           <svg
             viewBox={`0 0 ${W} ${H}`}
             className="w-full"
-            style={{ height: 180 }}
+            style={{ height: 'clamp(120px, 20vw, 180px)' }}
             preserveAspectRatio="none"
           >
             <defs>
               <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.35" />
+                <stop offset="0%"   stopColor="#f59e0b" stopOpacity="0.35" />
                 <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.02" />
               </linearGradient>
             </defs>
 
-            {/* Grid lines */}
             {[0.2, 0.4, 0.6, 0.8].map((r, i) => (
-              <line key={i} x1="20" y1={20 + r * 160} x2={W - 20} y2={20 + r * 160}
-                stroke="#f3f4f6" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+              <line
+                key={i}
+                x1="20" y1={20 + r * 160} x2={W - 20} y2={20 + r * 160}
+                stroke="#f3f4f6" strokeWidth="1" vectorEffect="non-scaling-stroke"
+              />
             ))}
 
-            {/* Area fill */}
             <path d={area} fill="url(#chartGrad)" />
+            <path
+              d={line} fill="none" stroke="#f59e0b" strokeWidth="2.5"
+              strokeLinecap="round" strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+            />
 
-            {/* Line */}
-            <path d={line} fill="none" stroke="#f59e0b" strokeWidth="2.5"
-              strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-
-            {/* Last dot highlight */}
-            <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r="5" fill="#f59e0b" />
-            <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r="9" fill="#f59e0b" fillOpacity="0.2" />
+            <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r="5"  fill="#f59e0b" />
+            <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r="9"  fill="#f59e0b" fillOpacity="0.2" />
           </svg>
 
-          {/* X labels — evenly spaced across full width */}
+          {/* X labels */}
           <div className="flex justify-between mt-1 px-0">
             {labelIndices.map((dataIdx, i) => (
               <span key={i} className="text-xs text-gray-300 font-medium">
