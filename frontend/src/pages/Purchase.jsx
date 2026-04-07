@@ -9,14 +9,27 @@ export default function Purchase() {
   const [activeTab, setActiveTab]               = useState("All");
   const [tableSearch, setTableSearch]           = useState("");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [purchases, setPurchases]               = useState(initialPurchases);
 
-  const filtered = initialPurchases.filter((p) => {
+  const filtered = purchases.filter((p) => {
     const matchTab    = activeTab === "All" || p.status.toLowerCase() === activeTab.toLowerCase();
     const matchSearch = tableSearch === "" ||
       p.vendor.toLowerCase().includes(tableSearch.toLowerCase()) ||
       String(p.id).includes(tableSearch);
     return matchTab && matchSearch;
   });
+
+  const handleUpdateStatus = (rowIndex, newStatus) => {
+    setPurchases((prev) => prev.map((row, idx) => 
+      idx === rowIndex ? { ...row, status: newStatus } : row
+    ));
+  };
+
+  const handleUpdateMode = (rowIndex, newMode) => {
+    setPurchases((prev) => prev.map((row, idx) => 
+      idx === rowIndex ? { ...row, mode: newMode } : row
+    ));
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50/60">
@@ -46,6 +59,8 @@ export default function Purchase() {
             tableSearch={tableSearch}
             setTableSearch={setTableSearch}
             filtered={filtered}
+            onUpdateStatus={handleUpdateStatus}
+            onUpdateMode={handleUpdateMode}
           />
 
         </main>

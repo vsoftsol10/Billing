@@ -2,7 +2,7 @@ import PurchaseTabs from './PurchaseTabs';
 import PurchaseSearch from './PurchaseSearch';
 import PurchaseTable from './PurchaseTable';
 
-export default function PurchaseCard({ activeTab, setActiveTab, tableSearch, setTableSearch, filtered }) {
+export default function PurchaseCard({ activeTab, setActiveTab, tableSearch, setTableSearch, filtered, onUpdateStatus, onUpdateMode }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
 
@@ -16,7 +16,7 @@ export default function PurchaseCard({ activeTab, setActiveTab, tableSearch, set
       </div>
       {/* END: Tabs + search row */}
 
-      <PurchaseTable filtered={filtered} />
+      <PurchaseTable filtered={filtered} onUpdateStatus={onUpdateStatus} onUpdateMode={onUpdateMode} />
 
     </div>
   );

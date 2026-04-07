@@ -1,6 +1,31 @@
-import { statusStyles, formatINR } from './purchaseConstants';
+import { useState } from 'react';
+import { statusStyles, formatINR, statusOptions, modeOptions, modeStyles } from './purchaseConstants';
 
-export default function PurchaseTable({ filtered }) {
+export default function PurchaseTable({ filtered, onUpdateStatus, onUpdateMode }) {
+  const [openStatusRow, setOpenStatusRow] = useState(null);
+  const [openModeRow, setOpenModeRow] = useState(null);
+
+  const toggleDropdown = (rowIndex) => {
+    setOpenStatusRow((prev) => (prev === rowIndex ? null : rowIndex));
+  };
+
+  const toggleModeDropdown = (rowIndex) => {
+    setOpenModeRow((prev) => (prev === rowIndex ? null : rowIndex));
+  };
+
+  const handleSelectStatus = (rowIndex, status) => {
+    onUpdateStatus?.(rowIndex, status);
+    setOpenStatusRow(null);
+  };
+
+  const handleSelectMode = (rowIndex, mode) => {
+    onUpdateMode?.(rowIndex, mode);
+    setOpenModeRow(null);
+  };
+
+  const getRowKey = (row) => `${row.id}-${row.vendor}-${row.date}`;
+
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[680px] text-sm">
@@ -30,9 +55,33 @@ export default function PurchaseTable({ filtered }) {
                 <td className="py-3.5 px-4 text-center text-gray-700">{row.vendor}</td>
 
                 <td className="py-3.5 px-4 text-center">
-                  <span className="bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-md">
-                    {row.mode}
-                  </span>
+                  <div className="relative inline-block">
+                    <button
+                      type="button"
+                      onClick={() => toggleModeDropdown(i)}
+                      className={`inline-flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-md ${modeStyles[row.mode] || "bg-gray-100 text-gray-500"}`}
+                    >
+                      {row.mode}
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </button>
+
+                    {openModeRow === i && (
+                      <div className="absolute left-0 mt-2 w-32 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden">
+                        {modeOptions.map((mode) => (
+                          <button
+                            key={mode}
+                            type="button"
+                            onClick={() => handleSelectMode(i, mode)}
+                            className={`w-full px-3 py-2 text-left text-sm ${mode === row.mode ? 'bg-gray-100 font-semibold' : 'hover:bg-gray-50'}`}
+                          >
+                            {mode}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </td>
 
                 <td className="py-3.5 px-4 text-center text-gray-700 font-semibold">
@@ -42,12 +91,33 @@ export default function PurchaseTable({ filtered }) {
                 <td className="py-3.5 px-4 text-center text-gray-500">{row.date}</td>
 
                 <td className="py-3.5 px-4 text-center">
-                  <button className={`inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-lg ${statusStyles[row.status] || "bg-gray-100 text-gray-500"}`}>
-                    {row.status}
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                  </button>
+                  <div className="relative inline-block">
+                    <button
+                      type="button"
+                      onClick={() => toggleDropdown(i)}
+                      className={`inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-lg ${statusStyles[row.status] || "bg-gray-100 text-gray-500"}`}
+                    >
+                      {row.status}
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </button>
+
+                    {openStatusRow === i && (
+                      <div className="absolute left-0 mt-2 w-40 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden">
+                        {statusOptions.map((status) => (
+                          <button
+                            key={status}
+                            type="button"
+                            onClick={() => handleSelectStatus(i, status)}
+                            className={`w-full px-3 py-2 text-left text-sm ${status === row.status ? 'bg-gray-100 font-semibold' : 'hover:bg-gray-50'}`}
+                          >
+                            {status}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </td>
 
                 <td className="py-3.5 px-4">
