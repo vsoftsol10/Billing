@@ -10,8 +10,8 @@ const Invoice = () => {
   const [activeFilter, setActiveFilter] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [sidebarActive, setSidebarActive] = useState('Invoice')
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
-  // Sample invoice data
   const sampleInvoices = [
     { id: '1019', client: 'Globa Inc', amount: '₹ 8,750', date: '2026-01-14', gstNo: '2026-01-14', status: 'Pending' },
     { id: '1022', client: 'Stark Industries', amount: '₹ 4,550', date: '2026-01-09', gstNo: '2026-01-09', status: 'Open' },
@@ -20,24 +20,6 @@ const Invoice = () => {
     { id: '1009', client: 'Soylent Corp', amount: '₹ 2,950', date: '2026-01-10', gstNo: '2026-01-10', status: 'Update' },
   ]
 
-  // Filter invoices based on active filter and search
-  const getFilteredInvoices = () => {
-    let filtered = sampleInvoices
-
-    if (activeFilter !== 'All') {
-      filtered = filtered.filter(invoice => invoice.status === activeFilter)
-    }
-
-    if (searchQuery) {
-      filtered = filtered.filter(invoice =>
-        invoice.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        invoice.id.includes(searchQuery)
-      )
-    }
-
-    return filtered
-  }
-
   const stats = {
     total: sampleInvoices.length,
     pending: sampleInvoices.filter(i => i.status === 'Pending').length,
@@ -45,58 +27,59 @@ const Invoice = () => {
     overdue: sampleInvoices.filter(i => i.status === 'Update').length,
   }
 
-  const filteredInvoices = getFilteredInvoices()
-
-  const handleCreateInvoice = () => {
-    console.log('Create new invoice')
-    // Add logic to open create invoice modal
-  }
-
-  const handleFilterChange = (filter) => {
-    setActiveFilter(filter)
-  }
-
-  const handleSearchChange = (query) => {
-    setSearchQuery(query)
-  }
-
-  const handleInvoiceAction = (invoiceId, action) => {
-    console.log(`Action: ${action} on invoice ${invoiceId}`)
-    // Add logic for invoice actions (edit, delete, view, etc.)
-  }
-
-  const handleEditInvoice = (invoiceId) => {
-    console.log(`Edit invoice: ${invoiceId}`)
-    // Add logic to open edit invoice modal
-  }
-
-  const handleDeleteInvoice = (invoiceId) => {
-    console.log(`Delete invoice: ${invoiceId}`)
-    // Add logic to confirm and delete invoice
-  }
+  const handleCreateInvoice = () => console.log('Create new invoice')
+  const handleEditInvoice = (id) => console.log(`Edit invoice: ${id}`)
+  const handleDeleteInvoice = (id) => console.log(`Delete invoice: ${id}`)
 
   return (
-    <div className="flex bg-gray-50">
-      {/* Sidebar */}
-      <Sidebar activeItem={sidebarActive} onNavigate={setSidebarActive} />
+    /*
+     * KEY FIX: Use `relative overflow-hidden` on the root so the sidebar
+     * overlay never causes horizontal scroll / content shift on mobile.
+     */
+    <div className="relative flex bg-gray-50 min-h-screen overflow-hidden">
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      {/* ── Sidebar ── */}
+      <Sidebar
+        activeItem={sidebarActive}
+        onNavigate={setSidebarActive}
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
+      />
+
+      {/* ── Mobile backdrop — closes sidebar on outside tap ── */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-20 md:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
+      {/*
+       * KEY FIX: `min-w-0 w-full` prevents the main column from ever
+       * overflowing its flex container, which was causing the left-clip.
+       */}
+      <div className="flex-1 flex flex-col min-w-0 w-full">
+
         {/* Navbar */}
-        <Navbar title="Invoice" subtitle={true} user="VBILL" />
+        <Navbar
+          title="Invoice"
+          subtitle={true}
+          user="VBILL"
+          onMenuToggle={() => setMobileSidebarOpen(true)}
+        />
 
-        {/* Page Content */}
-        <main className="flex-1 p-7 overflow-auto">
+        {/* Page content — px-4 on mobile, more on larger screens */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-7 overflow-auto min-w-0">
           <InvoiceHeader onCreateInvoice={handleCreateInvoice} />
-          
+
           {/* <InvoiceStats stats={stats} /> */}
-          
-          <InvoiceFilters 
-            onFilterChange={handleFilterChange} 
-            onSearchChange={handleSearchChange}
+
+          <InvoiceFilters
+            onFilterChange={setActiveFilter}
+            onSearchChange={setSearchQuery}
           />
 
-          <InvoiceTable 
+          <InvoiceTable
             externalFilter={activeFilter}
             externalSearch={searchQuery}
             onEdit={handleEditInvoice}

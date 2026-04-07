@@ -24,7 +24,7 @@ const Login = ({ onLogin }) => {
     setTimeout(() => {
       setIsLoading(false)
       if (email === DEFAULT_EMAIL && password === DEFAULT_PASSWORD) {
-        localStorage.setItem('token','dummy-token')
+        localStorage.setItem('token', 'dummy-token') // Set token on successful login
         navigate('/dashboard')
       } else {
         setError('Invalid email or password. Try admin@vbill.com / vbill@123')

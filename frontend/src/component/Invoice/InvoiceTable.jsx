@@ -14,8 +14,8 @@ const DUMMY_INVOICES = [
   { id: 'INV-010', client: 'Jupiter & Co', amount: '₹8,100', date: '2025-01-07', gstNo: '32MNOPQ8901W0X4', status: 'Draft' },
   { id: 'INV-011', client: 'Kestrel Infra', amount: '₹94,500', date: '2025-02-14', gstNo: '21ABCDE3456Y1Z5', status: 'Pending' },
   { id: 'INV-012', client: 'Luminary Pvt', amount: '₹37,600', date: '2025-03-25', gstNo: '07XYZAB7890A2B6', status: 'Cancelled' },
-  { id: 'INV-012', client: 'Luminary Pvt', amount: '₹45,600', date: '2026-03-25', gstNo: '07XYZAB7890A2B6', status: 'Pending' },
-  { id: 'INV-012', client: 'Luminary Pvt', amount: '₹45,600', date: '2026-03-25', gstNo: '07XYZAB7890A2B6', status: 'Open' },
+  { id: 'INV-013', client: 'Luminary Pvt', amount: '₹45,600', date: '2026-03-25', gstNo: '07XYZAB7890A2B6', status: 'Pending' },
+  { id: 'INV-014', client: 'Luminary Pvt', amount: '₹45,600', date: '2026-03-25', gstNo: '07XYZAB7890A2B6', status: 'Open' },
 ]
 
 const FINANCIAL_YEARS = [
@@ -39,18 +39,7 @@ const getStatusColor = (status) => {
   return colors[status] || 'bg-gray-100 text-gray-800'
 }
 
-const getStatusIcon = (status) => {
-  const icons = {
-    'Pending':   '▼',
-    'Open':      '▼',
-    'Update':    '▼',
-    'Paid':      '▼',
-    'Cancelled': '▼',
-    'Draft':     '▼',
-  }
-  return icons[status] || '○'
-}
-
+// ─── Status Dropdown ────────────────────────────────────────────────────────
 const StatusDropdown = ({ value, onChange }) => {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
@@ -65,10 +54,12 @@ const StatusDropdown = ({ value, onChange }) => {
     <div className="relative w-fit" ref={ref}>
       <span
         onClick={() => setOpen(p => !p)}
-        className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-fit cursor-pointer select-none ${getStatusColor(value)}`}
+        className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-fit cursor-pointer select-none ${getStatusColor(value)}`}
       >
         {value}
-        <span>{getStatusIcon(value)}</span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
       </span>
       {open && (
         <div
@@ -81,9 +72,7 @@ const StatusDropdown = ({ value, onChange }) => {
               onClick={() => { onChange(s); setOpen(false) }}
               className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-50 transition-colors text-left"
             >
-              <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getStatusColor(s)}`}>
-                {s}
-              </span>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getStatusColor(s)}`}>{s}</span>
             </button>
           ))}
         </div>
@@ -92,6 +81,7 @@ const StatusDropdown = ({ value, onChange }) => {
   )
 }
 
+// ─── Action Dropdown ─────────────────────────────────────────────────────────
 const ActionDropdown = ({ invoiceId, onEdit, onDelete }) => {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
@@ -102,23 +92,13 @@ const ActionDropdown = ({ invoiceId, onEdit, onDelete }) => {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  const handleEdit = () => {
-    setOpen(false)
-    if (onEdit) onEdit(invoiceId)
-  }
-
-  const handleDelete = () => {
-    setOpen(false)
-    if (onDelete) onDelete(invoiceId)
-  }
-
   return (
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(p => !p)}
-        className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+        className="text-gray-400 hover:text-gray-600 transition-colors p-1.5 rounded-md hover:bg-gray-100"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
           <circle cx="12" cy="5" r="2" />
           <circle cx="12" cy="12" r="2" />
           <circle cx="12" cy="19" r="2" />
@@ -130,20 +110,20 @@ const ActionDropdown = ({ invoiceId, onEdit, onDelete }) => {
           style={{ animation: 'fadeSlideDown 0.12s ease' }}
         >
           <button
-            onClick={handleEdit}
+            onClick={() => { setOpen(false); if (onEdit) onEdit(invoiceId) }}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors text-left"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
             </svg>
             Edit
           </button>
           <button
-            onClick={handleDelete}
+            onClick={() => { setOpen(false); if (onDelete) onDelete(invoiceId) }}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="3 6 5 6 21 6"/>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
               <line x1="10" y1="11" x2="10" y2="17"/>
@@ -157,6 +137,7 @@ const ActionDropdown = ({ invoiceId, onEdit, onDelete }) => {
   )
 }
 
+// ─── FY Filter ───────────────────────────────────────────────────────────────
 const FYFilter = ({ selected, onChange }) => {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
@@ -170,18 +151,19 @@ const FYFilter = ({ selected, onChange }) => {
   const current = FINANCIAL_YEARS.find(f => f.value === selected)
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative flex-shrink-0" ref={ref}>
       <button
         onClick={() => setOpen(p => !p)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap"
       >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
           <line x1="16" y1="2" x2="16" y2="6"/>
           <line x1="8" y1="2" x2="8" y2="6"/>
           <line x1="3" y1="10" x2="21" y2="10"/>
         </svg>
-        {current?.label || 'All Years'}
+        <span className="hidden xs:inline">{current?.label || 'All Years'}</span>
+        <span className="xs:hidden">FY</span>
         <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
           <polyline points="6 9 12 15 18 9"/>
         </svg>
@@ -195,7 +177,7 @@ const FYFilter = ({ selected, onChange }) => {
             <button
               key={fy.value}
               onClick={() => { onChange(fy.value); setOpen(false) }}
-              className={`w-full text-left px-4 py-2 text-xs font-medium transition-colors
+              className={`w-full text-left px-4 py-2.5 text-xs font-medium transition-colors
                 ${fy.value === selected ? 'bg-amber-50 text-amber-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'}`}
             >
               {fy.label}
@@ -207,6 +189,32 @@ const FYFilter = ({ selected, onChange }) => {
   )
 }
 
+// ─── Mobile Card ─────────────────────────────────────────────────────────────
+const InvoiceCard = ({ invoice, onStatusChange, onEdit, onDelete }) => (
+  <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
+    {/* Top row */}
+    <div className="flex items-start justify-between gap-2">
+      <div>
+        <p className="text-sm font-bold text-gray-900">{invoice.id}</p>
+        <p className="text-sm text-gray-600 mt-0.5">{invoice.client}</p>
+      </div>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <StatusDropdown value={invoice.status} onChange={(s) => onStatusChange(invoice.id, s)} />
+        <ActionDropdown invoiceId={invoice.id} onEdit={onEdit} onDelete={onDelete} />
+      </div>
+    </div>
+    {/* Details row */}
+    <div className="flex items-center justify-between text-xs text-gray-500 pt-1 border-t border-gray-100">
+      <div className="flex flex-col gap-1">
+        <span className="font-semibold text-gray-900 text-sm">{invoice.amount}</span>
+        <span>{invoice.date}</span>
+      </div>
+      <span className="text-right truncate max-w-[140px] font-mono">{invoice.gstNo}</span>
+    </div>
+  </div>
+)
+
+// ─── Main Table ───────────────────────────────────────────────────────────────
 const InvoiceTable = ({ externalFilter = 'All', externalSearch = '', onEdit, onDelete }) => {
   const [invoices, setInvoices] = useState(DUMMY_INVOICES)
   const [search, setSearch] = useState('')
@@ -219,7 +227,6 @@ const InvoiceTable = ({ externalFilter = 'All', externalSearch = '', onEdit, onD
   }
 
   const filtered = invoices.filter(inv => {
-    // Use external search if provided, otherwise use internal search
     const q = (externalSearch || search).toLowerCase()
     const matchesSearch =
       inv.id.toLowerCase().includes(q) ||
@@ -229,18 +236,9 @@ const InvoiceTable = ({ externalFilter = 'All', externalSearch = '', onEdit, onD
       inv.gstNo.toLowerCase().includes(q) ||
       inv.status.toLowerCase().includes(q)
 
-    // Apply external status filter
     let matchesStatus = true
     if (externalFilter !== 'All') {
-      // Map external filter names to internal status values
-      const statusMapping = {
-        'Pending': 'Pending',
-        'Paid': 'Paid',
-        'Cancelled': 'Cancelled',
-        'Draft': 'Draft',
-        'Open': 'Open'
-      }
-      matchesStatus = inv.status === statusMapping[externalFilter]
+      matchesStatus = inv.status === externalFilter
     }
 
     let matchesFY = true
@@ -252,15 +250,11 @@ const InvoiceTable = ({ externalFilter = 'All', externalSearch = '', onEdit, onD
     return matchesSearch && matchesStatus && matchesFY
   })
 
-  // Pagination logic
   const totalPages = Math.ceil(filtered.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedInvoices = filtered.slice(startIndex, startIndex + itemsPerPage)
 
-  // Reset to first page when filters change
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [search, fyFilter, externalFilter, externalSearch])
+  useEffect(() => { setCurrentPage(1) }, [search, fyFilter, externalFilter, externalSearch])
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -269,11 +263,14 @@ const InvoiceTable = ({ externalFilter = 'All', externalSearch = '', onEdit, onD
           from { opacity: 0; transform: translateY(-5px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        /* hide scrollbar on filter strip */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-3 px-6 py-3 border-b border-gray-200">
-        <div className="relative">
+      <div className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4 border-b border-gray-200">
+        <div className="relative w-full sm:max-w-xs">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
@@ -282,7 +279,7 @@ const InvoiceTable = ({ externalFilter = 'All', externalSearch = '', onEdit, onD
             placeholder="Search invoices…"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="pl-8 pr-8 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-amber-400 transition-colors w-64"
+            className="pl-8 pr-8 py-2 rounded-2xl border border-gray-200 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-amber-400 transition-colors w-full"
           />
           {search && (
             <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -295,49 +292,62 @@ const InvoiceTable = ({ externalFilter = 'All', externalSearch = '', onEdit, onD
         <FYFilter selected={fyFilter} onChange={setFyFilter} />
       </div>
 
-      {/* Original table — untouched structure */}
-      <table className="w-full">
-        <thead className="bg-gray-50 border-b border-gray-200">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Client</th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">GST.No</th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Action</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          {paginatedInvoices.length > 0 ? (
-            paginatedInvoices.map((invoice) => (
-              <tr key={invoice.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 text-sm font-semibold text-gray-900">{invoice.id}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">{invoice.client}</td>
-                <td className="px-6 py-4 text-sm font-semibold text-gray-900">{invoice.amount}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">{invoice.date}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">{invoice.gstNo}</td>
-                <td className="px-6 py-4 text-sm">
-                  <StatusDropdown value={invoice.status} onChange={(s) => updateStatus(invoice.id, s)} />
-                </td>
-                <td className="px-6 py-4 text-sm">
-                  <ActionDropdown
-                    invoiceId={invoice.id}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                  />
-                </td>
-              </tr>
-            ))
-          ) : (
+      {/* ── Mobile card list (< md) ── */}
+      <div className="md:hidden">
+        {paginatedInvoices.length > 0 ? (
+          <div className="p-3 space-y-3">
+            {paginatedInvoices.map((invoice, idx) => (
+              <InvoiceCard
+                key={`${invoice.id}-${idx}`}
+                invoice={invoice}
+                onStatusChange={updateStatus}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="px-4 py-10 text-center text-sm text-gray-500">No invoices found</div>
+        )}
+      </div>
+
+      {/* ── Desktop / tablet table (≥ md) ── */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full min-w-[700px]">
+          <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
-                No invoices found
-              </td>
+              {['ID', 'Client', 'Amount', 'Date', 'GST No.', 'Status', 'Action'].map(h => (
+                <th key={h} className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                  {h}
+                </th>
+              ))}
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {paginatedInvoices.length > 0 ? (
+              paginatedInvoices.map((invoice, idx) => (
+                <tr key={`${invoice.id}-${idx}`} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-4 lg:px-6 py-3.5 text-sm font-semibold text-gray-900 whitespace-nowrap">{invoice.id}</td>
+                  <td className="px-4 lg:px-6 py-3.5 text-sm text-gray-600 max-w-[160px] truncate">{invoice.client}</td>
+                  <td className="px-4 lg:px-6 py-3.5 text-sm font-semibold text-gray-900 whitespace-nowrap">{invoice.amount}</td>
+                  <td className="px-4 lg:px-6 py-3.5 text-sm text-gray-500 whitespace-nowrap">{invoice.date}</td>
+                  <td className="px-4 lg:px-6 py-3.5 text-sm text-gray-500 font-mono whitespace-nowrap hidden lg:table-cell">{invoice.gstNo}</td>
+                  <td className="px-4 lg:px-6 py-3.5">
+                    <StatusDropdown value={invoice.status} onChange={(s) => updateStatus(invoice.id, s)} />
+                  </td>
+                  <td className="px-4 lg:px-6 py-3.5">
+                    <ActionDropdown invoiceId={invoice.id} onEdit={onEdit} onDelete={onDelete} />
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="px-6 py-10 text-center text-sm text-gray-500">No invoices found</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
