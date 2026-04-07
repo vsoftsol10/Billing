@@ -42,49 +42,56 @@ const QuotationFilters = ({
   }, [])
 
   return (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
-      <div className="flex flex-wrap gap-2">
+    <>
+      <style>{`
+        /* hide scrollbar on filter strip */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+      <div className="mb-4 sm:mb-6">
+      {/* Scrollable filter chips — no wrapping on mobile, scroll instead */}
+      <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:pb-0 scrollbar-hide">
         {statusOptions.map(status => (
           <button
             key={status}
             type="button"
             onClick={() => onFilterChange(status)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              activeFilter === status
+            className={`whitespace-nowrap flex-shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium transition-all text-xs sm:text-sm
+              ${activeFilter === status
                 ? 'bg-amber-400 text-gray-900'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+              }`}
           >
             {status}
           </button>
         ))}
       </div>
 
-      <div className="flex items-center gap-2">
-        <div className="relative">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-3">
+        <div className="relative flex-1 sm:flex-initial">
           <input
             type="search"
             placeholder="Search quotations..."
             value={searchText}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-72 pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-amber-400"
+            className="w-full sm:w-72 pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-amber-400"
           />
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
         </div>
-        <div className="relative" ref={ref}>
+        <div className="relative">
           <button
             type="button"
             onClick={() => setOpenFilter((prev) => !prev)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition-colors"
+            className="w-full sm:w-auto px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition-colors"
           >
             Filters
           </button>
 
           {openFilter && (
-            <div className="absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-40 p-3">
+            <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-40 p-3 max-h-96 overflow-y-auto">
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-gray-500">Time frame</label>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex flex-wrap gap-2">
                   {timeFrames.map(frame => (
                     <button
                       key={frame}
@@ -151,6 +158,7 @@ const QuotationFilters = ({
         </div>
       </div>
     </div>
+    </>
   )
 }
 

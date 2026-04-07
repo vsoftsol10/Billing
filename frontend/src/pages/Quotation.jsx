@@ -75,50 +75,76 @@ const Quotation = () => {
   }
 
   return (
-    <div className="flex bg-gray-50 min-h-screen">
+    /*
+     * KEY FIX: Use `relative overflow-hidden` on the root so the sidebar
+     * overlay never causes horizontal scroll / content shift on mobile.
+     */
+    <div className="relative flex bg-gray-50 min-h-screen overflow-hidden">
+
+      {/* ── Sidebar ── */}
       <Sidebar
         activeItem={sidebarActive}
         onNavigate={setSidebarActive}
         mobileOpen={mobileSidebarOpen}
         onMobileClose={() => setMobileSidebarOpen(false)}
       />
-      <div className="flex-1 flex flex-col">
+
+      {/* ── Mobile backdrop — closes sidebar on outside tap ── */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-20 md:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
+      {/*
+       * KEY FIX: `min-w-0 w-full` prevents the main column from ever
+       * overflowing its flex container, which was causing the left-clip.
+       */}
+      <div className="flex-1 flex flex-col min-w-0 w-full">
+
+        {/* Navbar */}
         <Navbar
           title="Quotation"
           subtitle={true}
           user="VBILL"
           onMenuToggle={() => setMobileSidebarOpen(true)}
         />
-        <main className="flex-1 p-4 sm:p-7 overflow-auto">
-          <QuotationHeader onCreateQuotation={handleCreateQuotation} />
-          {/* <QuotationTabs activeTab={activeTab} onTabChange={handleTabChange} /> */}
-          <QuotationFilters
-            activeFilter={activeTab}
-            onFilterChange={(filter) => { setActiveTab(filter); setCurrentPage(1) }}
-            searchText={searchText}
-            onSearchChange={handleSearchText}
-            timeFrame={timeFrame}
-            onTimeFrameChange={handleTimeFrameChange}
-            selectedYear={selectedYear}
-            onYearChange={handleYearChange}
-            selectedMonth={selectedMonth}
-            onMonthChange={handleMonthChange}
-            onClearTimeFilters={clearTimeFilters}
-          />
-          <QuotationTable
-            quotations={quotations}
-            activeTab={activeTab}
-            searchText={searchText}
-            timeFrame={timeFrame}
-            selectedYear={selectedYear}
-            selectedMonth={selectedMonth}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-            onStatusChange={handleStatusChange}
-            onView={handleView}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+
+        {/* Page content — px-4 on mobile, more on larger screens */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-7 overflow-auto min-w-0">
+          <div className="max-w-7xl mx-auto space-y-6">
+            <QuotationHeader onCreateQuotation={handleCreateQuotation} />
+
+            <QuotationFilters
+              activeFilter={activeTab}
+              onFilterChange={(filter) => { setActiveTab(filter); setCurrentPage(1) }}
+              searchText={searchText}
+              onSearchChange={handleSearchText}
+              timeFrame={timeFrame}
+              onTimeFrameChange={handleTimeFrameChange}
+              selectedYear={selectedYear}
+              onYearChange={handleYearChange}
+              selectedMonth={selectedMonth}
+              onMonthChange={handleMonthChange}
+              onClearTimeFilters={clearTimeFilters}
+            />
+
+            <QuotationTable
+              quotations={quotations}
+              activeTab={activeTab}
+              searchText={searchText}
+              timeFrame={timeFrame}
+              selectedYear={selectedYear}
+              selectedMonth={selectedMonth}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+              onStatusChange={handleStatusChange}
+              onView={handleView}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          </div>
         </main>
       </div>
     </div>

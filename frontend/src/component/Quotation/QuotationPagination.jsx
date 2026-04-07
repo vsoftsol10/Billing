@@ -2,11 +2,11 @@ import React from 'react'
 
 const QuotationPagination = ({ currentPage, totalPages, onPageChange }) => {
   return (
-    <div className="flex items-center justify-between mt-6 px-6 py-3 border-t border-gray-200">
-      <div className="text-sm text-gray-600">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-6 px-3 sm:px-6 py-3 border-t border-gray-200">
+      <div className="text-sm text-gray-600 text-center sm:text-left">
         Page <span className="font-semibold">{currentPage}</span> of <span className="font-semibold">{totalPages}</span>
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 justify-center sm:justify-end">
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}

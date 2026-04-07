@@ -36,7 +36,7 @@ const StatusDropdown = ({ value, onChange }) => {
         <span className="text-xs">▾</span>
       </button>
       {open && (
-        <div className="absolute z-30 mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-md">
+        <div className="absolute z-30 mt-1 w-32 sm:w-40 bg-white border border-gray-200 rounded-lg shadow-md left-0 sm:left-auto">
           {STATUS_OPTIONS.map(option => (
             <button
               key={option}
@@ -69,7 +69,7 @@ const ActionMenu = ({ quote, onView, onEdit, onDelete }) => {
         •••
       </button>
       {open && (
-        <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-30">
+        <div className="absolute right-0 mt-1 w-32 sm:w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-30">
           <button onClick={() => { setOpen(false); onView(quote) }} className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">View</button>
           <button onClick={() => { setOpen(false); onEdit(quote) }} className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50">Edit</button>
           <button onClick={() => { setOpen(false); onDelete(quote) }} className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50">Delete</button>
@@ -78,6 +78,30 @@ const ActionMenu = ({ quote, onView, onEdit, onDelete }) => {
     </div>
   )
 }
+
+// ─── Mobile Card ─────────────────────────────────────────────────────────────
+const QuotationCard = ({ quote, onStatusChange, onView, onEdit, onDelete }) => (
+  <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
+    {/* Top row */}
+    <div className="flex items-start justify-between gap-2">
+      <div>
+        <p className="text-sm font-bold text-gray-900">{quote.id}</p>
+        <p className="text-sm text-gray-600 mt-0.5">{quote.client}</p>
+      </div>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <StatusDropdown value={quote.status} onChange={(s) => onStatusChange(quote.id, s)} />
+        <ActionMenu quote={quote} onView={onView} onEdit={onEdit} onDelete={onDelete} />
+      </div>
+    </div>
+    {/* Details row */}
+    <div className="flex items-center justify-between text-xs text-gray-500 pt-1 border-t border-gray-100">
+      <div className="flex flex-col gap-1">
+        <span className="font-semibold text-gray-900 text-sm">{quote.amount}</span>
+        <span>{quote.date}</span>
+      </div>
+    </div>
+  </div>
+)
 
 const DUMMY_QUOTATIONS = [
   { id: '1001', client: 'Globe Inc', amount: '₹ 8,750', date: '2023-01-14', status: 'Pending' },
@@ -131,48 +155,71 @@ const QuotationTable = ({ quotations, activeTab, searchText, timeFrame, selected
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[680px] text-left text-sm">
-        <thead className="bg-gray-50 border-b border-gray-200">
-          <tr>
-            <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-            <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Client</th>
-            <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
-            <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
-            <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-            <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Action</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          {paged.length > 0 ? (
-            paged.map(item => (
-              <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 font-semibold text-gray-900">{item.id}</td>
-                <td className="px-6 py-4 text-gray-600">{item.client}</td>
-                <td className="px-6 py-4 font-semibold text-gray-900">{item.amount}</td>
-                <td className="px-6 py-4 text-gray-600">{item.date}</td>
-                <td className="px-6 py-4">
-                  <StatusDropdown value={item.status} onChange={newStatus => onStatusChange(item.id, newStatus)} />
-                </td>
-                <td className="px-6 py-4">
-                  <ActionMenu
-                    quote={item}
-                    onView={onView}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                  />
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="6" className="px-6 py-8 text-center text-gray-500">No quotations found</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+      {/* ── Mobile card list (< md) ── */}
+      <div className="md:hidden">
+        {paged.length > 0 ? (
+          <div className="p-3 space-y-3">
+            {paged.map((quote, idx) => (
+              <QuotationCard
+                key={`${quote.id}-${idx}`}
+                quote={quote}
+                onStatusChange={onStatusChange}
+                onView={onView}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="px-4 py-10 text-center text-sm text-gray-500">No quotations found</div>
+        )}
       </div>
-      <QuotationPagination currentPage={page} totalPages={totalPages} onPageChange={onPageChange} />
+
+      {/* ── Desktop / tablet table (≥ md) ── */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full min-w-[700px]">
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
+              {['ID', 'Client', 'Amount', 'Date', 'Status', 'Action'].map(h => (
+                <th key={h} className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {paged.length > 0 ? (
+              paged.map((quote, idx) => (
+                <tr key={`${quote.id}-${idx}`} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-4 lg:px-6 py-3.5 text-sm font-semibold text-gray-900 whitespace-nowrap">{quote.id}</td>
+                  <td className="px-4 lg:px-6 py-3.5 text-sm text-gray-600 max-w-[160px] truncate">{quote.client}</td>
+                  <td className="px-4 lg:px-6 py-3.5 text-sm font-semibold text-gray-900 whitespace-nowrap">{quote.amount}</td>
+                  <td className="px-4 lg:px-6 py-3.5 text-sm text-gray-500 whitespace-nowrap">{quote.date}</td>
+                  <td className="px-4 lg:px-6 py-3.5">
+                    <StatusDropdown value={quote.status} onChange={(s) => onStatusChange(quote.id, s)} />
+                  </td>
+                  <td className="px-4 lg:px-6 py-3.5">
+                    <ActionMenu quote={quote} onView={onView} onEdit={onEdit} onDelete={onDelete} />
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="px-6 py-10 text-center text-sm text-gray-500">No quotations found</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <QuotationPagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
+      )}
     </div>
   )
 }
