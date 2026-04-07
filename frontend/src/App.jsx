@@ -7,6 +7,7 @@ import DashboardPage from './pages/Dashboard';
 import Invoice from './pages/Invoice';
 import Quotation from './pages/Quotation';
 import Purchase from './pages/Purchase';
+import GST from './pages/Gst';
 
 // Simple auth guard — replace with your actual auth logic (context/redux/jwt check)
 const PrivateRoute = ({ children }) => {
@@ -60,7 +61,16 @@ const App = () => {
           }
         />
 
-          </Routes>
+        <Route
+          path="/gst"
+          element={
+            <PrivateRoute>
+              <GST />
+            </PrivateRoute>
+          }
+        />
+
+      </Routes>
     </Router>
   )
 }
