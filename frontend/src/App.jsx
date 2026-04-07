@@ -8,6 +8,8 @@ import Invoice from './pages/Invoice';
 import Quotation from './pages/Quotation';
 import Purchase from './pages/Purchase';
 import GST from './pages/Gst';
+import OnlineStore from './pages/OnlineStore';
+import EWayBills from './pages/EWayBills';
 
 // Simple auth guard — replace with your actual auth logic (context/redux/jwt check)
 const PrivateRoute = ({ children }) => {
@@ -66,6 +68,24 @@ const App = () => {
           element={
             <PrivateRoute>
               <GST />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/online-store"
+          element={
+            <PrivateRoute>
+              <OnlineStore />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/eway-bills"
+          element={
+            <PrivateRoute>
+              <EWayBills />
             </PrivateRoute>
           }
         />
