@@ -2,9 +2,9 @@ import React from 'react'
 
 const EWayBillHeader = ({ onConnect }) => {
   return (
-    <div className="flex items-center justify-between gap-3 mb-4 sm:mb-6 min-w-0">
-      <div className="min-w-0 flex-1 overflow-hidden">
-        <h2 className="truncate whitespace-nowrap text-sm sm:text-base lg:text-lg xl:text-xl text-gray-900 font-bold leading-snug">
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4 sm:mb-6">
+      <div className="flex-1">
+        <h2 className="text-sm sm:text-base lg:text-lg xl:text-xl text-gray-900 font-bold leading-snug">
           Generate and track e-way bills efficiently
         </h2>
       </div>

@@ -10,7 +10,8 @@ import Purchase from './pages/Purchase';
 import GST from './pages/Gst';
 import OnlineStore from './pages/OnlineStore';
 import EWayBills from './pages/EWayBills';
-
+import ProductServices from './pages/ProductService';
+import Inventory from './pages/InventoryPage';
 // Simple auth guard — replace with your actual auth logic (context/redux/jwt check)
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token')
@@ -87,6 +88,23 @@ const App = () => {
             <PrivateRoute>
               <EWayBills />
             </PrivateRoute>
+          }
+        />
+
+        <Route 
+        path="/product-service"
+         element={
+         <PrivateRoute>
+          <ProductServices />
+         </PrivateRoute>
+         } />
+
+        <Route
+          path="/inventory"
+          element={
+            <PrivateRoute>
+              <Inventory />
+             </PrivateRoute>
           }
         />
 
