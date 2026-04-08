@@ -46,9 +46,6 @@ const Login = ({ onLogin }) => {
   return (
     <div className="min-h-screen flex font-sans">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');
-        * { font-family: 'DM Sans', sans-serif; }
-        .font-display { font-family: 'Sora', sans-serif; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
         .slide-up { animation: slideUp 0.55s cubic-bezier(0.16,1,0.3,1) forwards; opacity: 0; }
         .slide-up-1{animation-delay:.05s}.slide-up-2{animation-delay:.15s}.slide-up-3{animation-delay:.25s}

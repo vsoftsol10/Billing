@@ -37,10 +37,7 @@ const Navbar = ({ title = 'Dashboard', subtitle, user = 'VBILL', onMenuToggle })
         </button>
 
         <div className="min-w-0">
-          <h1
-            style={{ fontFamily: 'Sora, sans-serif' }}
-            className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 leading-tight truncate"
-          >
+          <h1 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 leading-tight truncate">
             {title}
           </h1>
           {subtitle && (

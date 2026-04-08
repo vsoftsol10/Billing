@@ -12,6 +12,8 @@ import OnlineStore from './pages/OnlineStore';
 import EWayBills from './pages/EWayBills';
 import ProductServices from './pages/ProductService';
 import Inventory from './pages/InventoryPage';
+import InviteUser from './pages/InviteUser';
+
 // Simple auth guard — replace with your actual auth logic (context/redux/jwt check)
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token')
@@ -104,6 +106,15 @@ const App = () => {
           element={
             <PrivateRoute>
               <Inventory />
+             </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/invite-user"
+          element={
+            <PrivateRoute>
+              <InviteUser />
              </PrivateRoute>
           }
         />

@@ -5,10 +5,7 @@ const StatCard = ({ label, value, sub, icon, trend }) => (
     <div className="flex items-start justify-between gap-2">
       <div className="min-w-0">
         <p className="text-xs text-gray-400 font-medium mb-1 truncate">{label}</p>
-        <p
-          style={{ fontFamily: 'Sora, sans-serif' }}
-          className="text-lg sm:text-xl font-bold text-gray-900 truncate"
-        >
+        <p className="text-lg sm:text-xl font-bold text-gray-900 truncate">
           {value}
         </p>
         {sub && (

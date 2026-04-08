@@ -1,7 +1,3 @@
-// index.jsx  (Inventory page)
-// Composes InventoryHeader, InventoryStats, InventoryFilters, InventoryTable
-// Manages shared state and passes handlers down as props.
-
 import { useState, useMemo } from "react";
 import Navbar from "../component/common/Navbar";
 import Sidebar from "../component/common/SideBar";

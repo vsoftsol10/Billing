@@ -19,10 +19,7 @@ const RecentTransactions = () => {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6">
-      <p
-        style={{ fontFamily: 'Sora, sans-serif' }}
-        className="text-sm font-bold text-gray-700 mb-4 tracking-wide"
-      >
+      <p className="text-sm font-bold text-gray-700 mb-4 tracking-wide">
         Recent Transactions
       </p>
 

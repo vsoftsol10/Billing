@@ -43,10 +43,7 @@ const RevenueChart = () => {
     <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 sm:mb-5 gap-2 flex-wrap">
-        <p
-          style={{ fontFamily: 'Sora, sans-serif' }}
-          className="text-sm font-bold text-gray-700 tracking-wide uppercase"
-        >
+        <p className="text-sm font-bold text-gray-700 tracking-wide uppercase">
           Revenue Overview
         </p>
         <div className="flex rounded-xl border border-gray-100 overflow-hidden shrink-0">

@@ -143,7 +143,7 @@ const SidebarContent = ({ activeItem, handleNavigation, openDropdowns, toggleDro
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white"/>
           </svg>
         </div>
-        <span style={{ fontFamily: 'Sora, sans-serif' }} className="text-base font-bold text-gray-900 tracking-tight">
+        <span className="text-base font-bold text-gray-900 tracking-tight">
           <span className="text-amber-500">V</span>Bill
         </span>
       </div>
