@@ -1,8 +1,8 @@
+// Quotation.jsx
 import React, { useState } from 'react'
 import Navbar from '../component/common/Navbar'
 import Sidebar from '../component/common/SideBar'
 import QuotationHeader from '../component/Quotation/QuotationHeader'
-import QuotationTabs from '../component/Quotation/QuotationTabs'
 import QuotationFilters from '../component/Quotation/QuotationFilters'
 import QuotationTable, { DUMMY_QUOTATIONS } from '../component/Quotation/QuotationTable'
 
@@ -17,92 +17,50 @@ const Quotation = () => {
   const [selectedMonth, setSelectedMonth] = useState('')
   const [quotations, setQuotations] = useState(DUMMY_QUOTATIONS)
 
-  const handleCreateQuotation = () => {
-    console.log('Create new quotation')
-    // TODO: open a create modal
-  }
-
-  const handleStatusChange = (id, newStatus) => {
+  const handleStatusChange = (id, newStatus) =>
     setQuotations(prev => prev.map(q => q.id === id ? { ...q, status: newStatus } : q))
-  }
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab)
-    setCurrentPage(1)
-  }
-
-  const handleSearchText = (text) => {
-    setSearchText(text)
-    setCurrentPage(1)
-  }
 
   const handleTimeFrameChange = (frame) => {
     setTimeFrame(frame)
     setCurrentPage(1)
-    if (frame === 'All') {
-      setSelectedYear('')
-      setSelectedMonth('')
-    }
-  }
-
-  const handleYearChange = (year) => {
-    setSelectedYear(year)
-    setCurrentPage(1)
-  }
-
-  const handleMonthChange = (month) => {
-    setSelectedMonth(month)
-    setCurrentPage(1)
+    if (frame === 'All') { setSelectedYear(''); setSelectedMonth('') }
   }
 
   const clearTimeFilters = () => {
-    setTimeFrame('All')
-    setSelectedYear('')
-    setSelectedMonth('')
-    setCurrentPage(1)
-  }
-
-  const handleView = (quote) => {
-    console.log('View quotation', quote)
-  }
-
-  const handleEdit = (quote) => {
-    console.log('Edit quotation', quote)
-  }
-
-  const handleDelete = (quote) => {
-    setQuotations(prev => prev.filter(q => q.id !== quote.id))
+    setTimeFrame('All'); setSelectedYear(''); setSelectedMonth(''); setCurrentPage(1)
   }
 
   return (
-    <div className="flex bg-gray-50 min-h-screen">
+    // Use `overflow-hidden` on root so sidebar overlay never causes horizontal scroll
+    <div className="flex bg-gray-50 min-h-screen overflow-hidden">
       <Sidebar
         activeItem={sidebarActive}
         onNavigate={setSidebarActive}
         mobileOpen={mobileSidebarOpen}
         onMobileClose={() => setMobileSidebarOpen(false)}
       />
-      <div className="flex-1 flex flex-col">
+
+      {/* This div must be `min-w-0` so flex children can shrink below their content size */}
+      <div className="flex-1 flex flex-col min-w-0">
         <Navbar
           title="Quotation"
           subtitle={true}
           user="VBILL"
           onMenuToggle={() => setMobileSidebarOpen(true)}
         />
-        <main className="flex-1 p-4 sm:p-7 overflow-auto">
-          <QuotationHeader onCreateQuotation={handleCreateQuotation} />
-          {/* <QuotationTabs activeTab={activeTab} onTabChange={handleTabChange} /> */}
+        <main className="flex-1 p-3 sm:p-5 lg:p-7 overflow-auto min-w-0">
+          <QuotationHeader onCreateQuotation={() => {}} />
           <QuotationFilters
             activeFilter={activeTab}
             onFilterChange={(filter) => { setActiveTab(filter); setCurrentPage(1) }}
             searchText={searchText}
-            onSearchChange={handleSearchText}
+            onSearchChange={(text) => { setSearchText(text); setCurrentPage(1) }}
             timeFrame={timeFrame}
             onTimeFrameChange={handleTimeFrameChange}
             selectedYear={selectedYear}
-            onYearChange={handleYearChange}
+            onYearChange={(year) => { setSelectedYear(year); setCurrentPage(1) }}
             selectedMonth={selectedMonth}
-            onMonthChange={handleMonthChange}
+            onMonthChange={(month) => { setSelectedMonth(month); setCurrentPage(1) }}
             onClearTimeFilters={clearTimeFilters}
           />
           <QuotationTable
@@ -115,9 +73,9 @@ const Quotation = () => {
             currentPage={currentPage}
             onPageChange={setCurrentPage}
             onStatusChange={handleStatusChange}
-            onView={handleView}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
+            onView={(q) => console.log('view', q)}
+            onEdit={(q) => console.log('edit', q)}
+            onDelete={(q) => setQuotations(prev => prev.filter(x => x.id !== q.id))}
           />
         </main>
       </div>

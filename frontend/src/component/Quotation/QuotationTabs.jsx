@@ -1,3 +1,4 @@
+// QuotationTabs.jsx
 import React from 'react'
 
 const tabs = ['All', 'Open', 'Closed', 'Partial', 'Cancelled', 'Draft']
@@ -10,7 +11,7 @@ const QuotationTabs = ({ activeTab, onTabChange }) => {
           key={tab}
           type="button"
           onClick={() => onTabChange(tab)}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+          className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
             activeTab === tab
               ? 'bg-amber-400 text-gray-900'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
