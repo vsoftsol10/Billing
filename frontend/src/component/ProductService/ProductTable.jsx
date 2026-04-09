@@ -11,7 +11,7 @@ const ProductTable = ({ items, onView, onEdit, onDelete }) => {
               (col) => (
                 <th
                   key={col}
-                  className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap"
+                  className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wide whitespace-nowrap"
                 >
                   {col}
                 </th>
@@ -38,16 +38,16 @@ const ProductTable = ({ items, onView, onEdit, onDelete }) => {
                   {item.name}
                 </td>
                 <td className="px-4 py-3 text-gray-600">{item.qty}</td>
-                <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                <td className="px-4 py-3 text-gray-600 font-bold whitespace-nowrap">
                   ₹ {item.mrp.toLocaleString("en-IN")}
                 </td>
-                <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                <td className="px-4 py-3 text-gray-600 font-bold whitespace-nowrap">
                   {item.sellingPrice}
                 </td>
-                <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                <td className="px-4 py-3 text-gray-600 font-bold whitespace-nowrap">
                   {item.taxableAmount}
                 </td>
-                <td className="px-4 py-3 text-gray-700 font-medium whitespace-nowrap">
+                <td className="px-4 py-3 text-gray-700 font-bold whitespace-nowrap">
                   ₹ {item.costPrice.toLocaleString("en-IN")}
                 </td>
                 <td className="px-4 py-3">

@@ -173,19 +173,19 @@ const QuotationTable = ({
         <table className="w-full text-left text-sm" style={{ minWidth: '560px' }}>
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="px-3 sm:px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-              <th className="px-3 sm:px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Client</th>
-              <th className="px-3 sm:px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
-              <th className="px-3 sm:px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider hidden sm:table-cell">Date</th>
-              <th className="px-3 sm:px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-              <th className="px-3 sm:px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Action</th>
+              <th className="px-3 sm:px-6 py-3 text-xs font-bold text-black-600 uppercase tracking-wider">ID</th>
+              <th className="px-3 sm:px-6 py-3 text-xs font-bold text-black-600 uppercase tracking-wider">Client</th>
+              <th className="px-3 sm:px-6 py-3 text-xs font-bold text-black-600 uppercase tracking-wider">Amount</th>
+              <th className="px-3 sm:px-6 py-3 text-xs font-bold text-black-600 uppercase tracking-wider hidden sm:table-cell">Date</th>
+              <th className="px-3 sm:px-6 py-3 text-xs font-bold text-black-600 uppercase tracking-wider">Status</th>
+              <th className="px-3 sm:px-6 py-3 text-xs font-bold text-black-600 uppercase tracking-wider">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {paged.length > 0 ? (
               paged.map(item => (
                 <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 font-semibold text-gray-900 text-xs sm:text-sm">{item.id}</td>
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-900 text-xs sm:text-sm">{item.id}</td>
                   <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 text-xs sm:text-sm max-w-[120px] truncate">{item.client}</td>
                   <td className="px-3 sm:px-6 py-3 sm:py-4 font-semibold text-gray-900 text-xs sm:text-sm whitespace-nowrap">{item.amount}</td>
                   <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 text-xs sm:text-sm hidden sm:table-cell">{item.date}</td>

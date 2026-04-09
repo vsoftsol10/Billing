@@ -31,7 +31,7 @@ const RecentTransactions = () => {
               {['ID', 'Client', 'Amount', 'Date', 'GST No.', 'Status'].map((h) => (
                 <th
                   key={h}
-                  className="text-left text-xs font-semibold text-gray-400 pb-3 pr-4 last:pr-0 tracking-wide uppercase whitespace-nowrap"
+                  className="text-left text-xs font-semibold text-black-400 pb-3 pr-4 last:pr-0 tracking-wide uppercase whitespace-nowrap"
                 >
                   {h}
                 </th>
@@ -44,11 +44,11 @@ const RecentTransactions = () => {
                 key={i}
                 className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
               >
-                <td className="py-3 pr-4 text-gray-500 font-mono text-xs">{t.id}</td>
-                <td className="py-3 pr-4 text-gray-800 font-medium whitespace-nowrap">{t.client}</td>
+                <td className="py-3 pr-4 text-gray-500 text-xs">{t.id}</td>
+                <td className="py-3 pr-4 text-gray-500 font-medium whitespace-nowrap">{t.client}</td>
                 <td className="py-3 pr-4 text-gray-800 font-semibold whitespace-nowrap">{t.amount}</td>
-                <td className="py-3 pr-4 text-gray-400 text-xs whitespace-nowrap">{t.date}</td>
-                <td className="py-3 pr-4 text-gray-400 text-xs whitespace-nowrap">{t.gst}</td>
+                <td className="py-3 pr-4 text-gray-500 text-xs whitespace-nowrap">{t.date}</td>
+                <td className="py-3 pr-4 text-gray-500 text-xs whitespace-nowrap">{t.gst}</td>
                 <td className="py-3">
                   <span
                     className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${
@@ -76,7 +76,7 @@ const RecentTransactions = () => {
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-gray-800 truncate">{t.client}</p>
-                <p className="text-xs text-gray-400 font-mono mt-0.5">#{t.id}</p>
+                <p className="text-xs text-gray-400 mt-0.5">#{t.id}</p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <span
@@ -96,7 +96,7 @@ const RecentTransactions = () => {
                 <span className="text-gray-400 uppercase tracking-wide font-medium">Date</span>
                 <span className="text-gray-600 text-right">{t.date}</span>
                 <span className="text-gray-400 uppercase tracking-wide font-medium">GST No.</span>
-                <span className="text-gray-600 text-right font-mono">{t.gst}</span>
+                <span className="text-gray-600 text-right">{t.gst}</span>
               </div>
             )}
           </div>

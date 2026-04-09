@@ -195,7 +195,7 @@ const InvoiceCard = ({ invoice, onStatusChange, onEdit, onDelete }) => (
     {/* Top row */}
     <div className="flex items-start justify-between gap-2">
       <div>
-        <p className="text-sm font-bold text-gray-900">{invoice.id}</p>
+        <p className="text-sm text-gray-900">{invoice.id}</p>
         <p className="text-sm text-gray-600 mt-0.5">{invoice.client}</p>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
@@ -209,7 +209,7 @@ const InvoiceCard = ({ invoice, onStatusChange, onEdit, onDelete }) => (
         <span className="font-semibold text-gray-900 text-sm">{invoice.amount}</span>
         <span>{invoice.date}</span>
       </div>
-      <span className="text-right truncate max-w-[140px] font-mono">{invoice.gstNo}</span>
+      <span className="text-right truncate max-w-[140px]">{invoice.gstNo}</span>
     </div>
   </div>
 )
@@ -317,7 +317,7 @@ const InvoiceTable = ({ externalFilter = 'All', externalSearch = '', onEdit, onD
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               {['ID', 'Client', 'Amount', 'Date', 'GST No.', 'Status', 'Action'].map(h => (
-                <th key={h} className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                <th key={h} className="px-4 lg:px-6 py-3 text-left text-xs font-bold text-black-500 uppercase tracking-wider whitespace-nowrap">
                   {h}
                 </th>
               ))}
@@ -327,11 +327,11 @@ const InvoiceTable = ({ externalFilter = 'All', externalSearch = '', onEdit, onD
             {paginatedInvoices.length > 0 ? (
               paginatedInvoices.map((invoice, idx) => (
                 <tr key={`${invoice.id}-${idx}`} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 lg:px-6 py-3.5 text-sm font-semibold text-gray-900 whitespace-nowrap">{invoice.id}</td>
+                  <td className="px-4 lg:px-6 py-3.5 text-sm text-gray-900 whitespace-nowrap">{invoice.id}</td>
                   <td className="px-4 lg:px-6 py-3.5 text-sm text-gray-600 max-w-[160px] truncate">{invoice.client}</td>
                   <td className="px-4 lg:px-6 py-3.5 text-sm font-semibold text-gray-900 whitespace-nowrap">{invoice.amount}</td>
                   <td className="px-4 lg:px-6 py-3.5 text-sm text-gray-500 whitespace-nowrap">{invoice.date}</td>
-                  <td className="px-4 lg:px-6 py-3.5 text-sm text-gray-500 font-mono whitespace-nowrap hidden lg:table-cell">{invoice.gstNo}</td>
+                  <td className="px-4 lg:px-6 py-3.5 text-sm text-gray-500 whitespace-nowrap hidden lg:table-cell">{invoice.gstNo}</td>
                   <td className="px-4 lg:px-6 py-3.5">
                     <StatusDropdown value={invoice.status} onChange={(s) => updateStatus(invoice.id, s)} />
                   </td>

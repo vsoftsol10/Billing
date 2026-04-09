@@ -112,7 +112,7 @@ const GSTTable = ({
           <thead>
             <tr className="text-left text-xs text-gray-400 uppercase tracking-wide border-b border-gray-100">
               {['GST No.', 'Client', 'GST Amount', 'Tax Amount', 'Date', 'Status', 'Action'].map((col) => (
-                <th key={col} className="px-4 py-3 font-medium whitespace-nowrap">{col}</th>
+                <th key={col} className="px-4 py-3 font-bold whitespace-nowrap">{col}</th>
               ))}
             </tr>
           </thead>
@@ -126,13 +126,13 @@ const GSTTable = ({
             ) : (
               paginated.map((row) => (
                 <tr key={row.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3.5 text-gray-600 font-mono text-xs whitespace-nowrap">
+                  <td className="px-4 py-3.5 text-gray-600 text-xs whitespace-nowrap">
                     {row.id.replace(/[abc]$/, '')}
                   </td>
                   <td className="px-4 py-3.5 font-medium text-gray-800 whitespace-nowrap">{row.client}</td>
-                  <td className="px-4 py-3.5 text-gray-700 whitespace-nowrap">{row.gst}</td>
-                  <td className="px-4 py-3.5 text-gray-700 whitespace-nowrap">{row.tax}</td>
-                  <td className="px-4 py-3.5 text-gray-500 font-mono text-xs whitespace-nowrap">{row.date}</td>
+                  <td className="px-4 py-3.5 text-gray-700 font-bold whitespace-nowrap">{row.gst}</td>
+                  <td className="px-4 py-3.5 text-gray-700 font-bold whitespace-nowrap">{row.tax}</td>
+                  <td className="px-4 py-3.5 text-gray-500 text-xs whitespace-nowrap">{row.date}</td>
                   <td className="px-4 py-3.5">
                     <StatusBadge status={row.status} />
                   </td>
