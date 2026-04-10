@@ -24,7 +24,7 @@ export default function InventoryHeader({ onAddNew }) {
             strokeLinecap="round"
           />
         </svg>
-        + Add New
+         Add New
       </button>
     </div>
   );

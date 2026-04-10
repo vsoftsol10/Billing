@@ -5,10 +5,9 @@ export default function InviteUserHeader({ onActivate, onDeactivate, onAddNew })
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Invite User</h1>
-        <p className="text-sm text-gray-400 mt-0.5">
+        <h2 className="text-base sm:text-lg lg:text-xl xl:text-2xl text-gray-900 font-bold leading-snug">
           Invite and manage users for your workspace
-        </p>
+        </h2>
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
@@ -33,7 +32,7 @@ export default function InviteUserHeader({ onActivate, onDeactivate, onAddNew })
         <button
           onClick={onAddNew}
           className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold
-                     bg-blue-500 hover:bg-blue-600 active:scale-95 text-white
+                     bg-yellow-500 hover:bg-yellow-600 active:scale-95 text-black
                      transition-all shadow-sm whitespace-nowrap"
         >
           <svg width="14" height="14" fill="none" viewBox="0 0 14 14">

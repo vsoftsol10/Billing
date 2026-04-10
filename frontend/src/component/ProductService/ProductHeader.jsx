@@ -9,7 +9,7 @@ const ProductHeader = ({ onAddNew }) => {
       </div>
       <button
         onClick={onAddNew}
-        className="flex items-center gap-2 bg-amber-400 hover:bg-amber-500 active:bg-amber-600 text-white font-semibold px-4 py-2.5 rounded-lg shadow-sm transition-all duration-150 text-sm whitespace-nowrap self-start sm:self-auto"
+        className="flex items-center gap-2 bg-amber-400 hover:bg-amber-500 active:bg-amber-600 text-black font-semibold px-4 py-2.5 rounded-lg shadow-sm transition-all duration-150 text-sm whitespace-nowrap self-start sm:self-auto"
       >
         <span className="text-lg leading-none">+</span>
         Add New
