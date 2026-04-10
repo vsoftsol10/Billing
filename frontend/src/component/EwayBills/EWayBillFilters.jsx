@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-const TABS = ['All', 'Pending', 'Success', 'Failed', 'Canceled']
+const TABS = ['All', 'Pending', 'Success', 'Failed', 'Cancelled']
 
 const EWayBillFilters = ({ onFilterChange, onSearchChange }) => {
   const [activeTab, setActiveTab] = useState('All')

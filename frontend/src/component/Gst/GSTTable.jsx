@@ -5,7 +5,7 @@ const STATUS_STYLES = {
   Open:     'bg-green-100 text-green-700 border border-green-200',
   Update:   'bg-blue-100 text-blue-700 border border-blue-200',
   Paid:     'bg-teal-100 text-teal-700 border border-teal-200',
-  Canceled: 'bg-red-100 text-red-700 border border-red-200',
+  Cancelled: 'bg-red-100 text-red-700 border border-red-200',
   Draft:    'bg-gray-100 text-gray-600 border border-gray-200',
 }
 
@@ -18,7 +18,7 @@ const SAMPLE_DATA = [
   { id: '2026-01-10b', client: 'Soylent Corp',    gst: '₹ 2,950',  tax: '₹ 2,950',  date: '2026-01-10', status: 'Update'   },
   { id: '2026-01-10c', client: 'Soylent Corp',    gst: '₹ 2,950',  tax: '₹ 2,950',  date: '2026-01-10', status: 'Update'   },
   { id: '2026-01-15', client: 'Wayne Enterprises',gst: '₹ 12,400', tax: '₹ 12,400', date: '2026-01-15', status: 'Paid'     },
-  { id: '2026-01-16', client: 'Acme Corp',        gst: '₹ 5,300',  tax: '₹ 5,300',  date: '2026-01-16', status: 'Canceled' },
+  { id: '2026-01-16', client: 'Acme Corp',        gst: '₹ 5,300',  tax: '₹ 5,300',  date: '2026-01-16', status: 'Cancelled' },
   { id: '2026-01-17', client: 'Umbrella Ltd',     gst: '₹ 7,100',  tax: '₹ 7,100',  date: '2026-01-17', status: 'Draft'    },
 ]
 
@@ -110,7 +110,7 @@ const GSTTable = ({
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-xs text-gray-400 uppercase tracking-wide border-b border-gray-100">
+            <tr className="text-left text-xs text-black-500 uppercase tracking-wide border-b border-gray-100">
               {['GST No.', 'Client', 'GST Amount', 'Tax Amount', 'Date', 'Status', 'Action'].map((col) => (
                 <th key={col} className="px-4 py-3 font-bold whitespace-nowrap">{col}</th>
               ))}
@@ -129,9 +129,9 @@ const GSTTable = ({
                   <td className="px-4 py-3.5 text-gray-600 text-xs whitespace-nowrap">
                     {row.id.replace(/[abc]$/, '')}
                   </td>
-                  <td className="px-4 py-3.5 font-medium text-gray-800 whitespace-nowrap">{row.client}</td>
+                  <td className="px-4 py-3.5 font-medium text-gray-500 whitespace-nowrap">{row.client}</td>
                   <td className="px-4 py-3.5 text-gray-700 font-bold whitespace-nowrap">{row.gst}</td>
-                  <td className="px-4 py-3.5 text-gray-700 font-bold whitespace-nowrap">{row.tax}</td>
+                  <td className="px-4 py-3.5 text-gray-500 font-bold whitespace-nowrap">{row.tax}</td>
                   <td className="px-4 py-3.5 text-gray-500 text-xs whitespace-nowrap">{row.date}</td>
                   <td className="px-4 py-3.5">
                     <StatusBadge status={row.status} />

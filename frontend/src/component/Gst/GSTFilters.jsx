@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-const TABS = ['All', 'Pending', 'Paid', 'Canceled', 'Draft']
+const TABS = ['All', 'Pending', 'Paid', 'Cancelled', 'Draft']
 
 const GSTFilters = ({ onFilterChange, onSearchChange }) => {
   const [activeTab, setActiveTab] = useState('All')

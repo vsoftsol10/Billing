@@ -7,7 +7,7 @@ const STATUS_STYLES = {
   Update:   'bg-teal-100   text-teal-700   border border-teal-200',
   Success:  'bg-green-100  text-green-700  border border-green-200',
   Failed:   'bg-red-100    text-red-700    border border-red-200',
-  Canceled: 'bg-gray-100   text-gray-600   border border-gray-200',
+  Cancelled: 'bg-gray-100   text-gray-600   border border-gray-200',
 }
 
 const ROWS_PER_PAGE = 7
@@ -20,7 +20,7 @@ const SAMPLE_DATA = [
   { id: '1009', client: 'Soylent Corp',      amount: '₹ 2,950',  date: '2026-01-10', status: 'Update'   },
   { id: '1031', client: 'Wayne Enterprises', amount: '₹ 12,400', date: '2026-01-15', status: 'Success'  },
   { id: '1045', client: 'Acme Corp',         amount: '₹ 5,300',  date: '2026-01-16', status: 'Failed'   },
-  { id: '1052', client: 'Umbrella Ltd',      amount: '₹ 7,100',  date: '2026-01-17', status: 'Canceled' },
+  { id: '1052', client: 'Umbrella Ltd',      amount: '₹ 7,100',  date: '2026-01-17', status: 'Cancelled' },
 ]
 
 /* ── Status Badge ── */
@@ -144,7 +144,7 @@ const EWayBillTable = ({
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               {['ID', 'Client', 'Amount', 'Date', 'Status', 'Action'].map(h => (
-                <th key={h} className="px-4 lg:px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                <th key={h} className="px-4 lg:px-6 py-3 text-left text-xs font-bold text-black-800 uppercase tracking-wider whitespace-nowrap">
                   {h}
                 </th>
               ))}

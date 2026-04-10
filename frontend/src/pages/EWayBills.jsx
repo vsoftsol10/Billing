@@ -17,7 +17,7 @@ const EWayBills = () => {
     { id: 'EWB-003', client: 'Soylent Corp',      amount: '₹ 2,950',  date: '2026-01-10', status: 'Success'  },
     { id: 'EWB-004', client: 'Wayne Enterprises', amount: '₹ 12,400', date: '2026-01-15', status: 'Failed'   },
     { id: 'EWB-005', client: 'Acme Corp',         amount: '₹ 5,300',  date: '2026-01-16', status: 'Pending'  },
-    { id: 'EWB-006', client: 'Umbrella Ltd',      amount: '₹ 7,100',  date: '2026-01-17', status: 'Canceled' },
+    { id: 'EWB-006', client: 'Umbrella Ltd',      amount: '₹ 7,100',  date: '2026-01-17', status: 'Cancelled' },
     { id: 'EWB-007', client: 'Bright Solutions',  amount: '₹ 3,200',  date: '2026-01-18', status: 'Success'  },
   ]
 
@@ -69,6 +69,7 @@ const EWayBills = () => {
 
 
             <EWayBillTable
+              data={sampleEWayBills}
               externalFilter={activeFilter}
               externalSearch={searchQuery}
               onView={handleView}

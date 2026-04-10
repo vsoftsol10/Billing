@@ -94,7 +94,7 @@ export default function InventoryTable({ items, onStatusChange, onStockIn, onSto
               {COLS.map((c) => (
                 <th
                   key={c}
-                  className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
+                  className="px-5 py-3.5 text-left text-xs font-semibold text-black-500 uppercase tracking-wide whitespace-nowrap"
                 >
                   {c}
                 </th>
@@ -108,7 +108,7 @@ export default function InventoryTable({ items, onStatusChange, onStockIn, onSto
                 className={`border-b border-gray-50 hover:bg-yellow-50/30 transition-colors
                             ${i % 2 !== 0 ? "bg-gray-50/40" : ""}`}
               >
-                <td className="px-5 py-3.5 font-medium text-gray-800">{item.name}</td>
+                <td className="px-5 py-3.5 font-medium text-gray-600">{item.name}</td>
                 <td className="px-5 py-3.5 text-gray-600">{item.qty}</td>
                 <td className="px-5 py-3.5 text-gray-600">{item.salesPrice}</td>
                 <td className="px-5 py-3.5 text-gray-600">{item.purchasePrice}</td>
