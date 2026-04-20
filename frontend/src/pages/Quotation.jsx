@@ -1,4 +1,3 @@
-// Quotation.jsx
 import React, { useState } from 'react'
 import Navbar from '../component/common/Navbar'
 import Sidebar from '../component/common/SideBar'
@@ -31,7 +30,6 @@ const Quotation = () => {
   }
 
   return (
-    // Use `overflow-hidden` on root so sidebar overlay never causes horizontal scroll
     <div className="flex bg-gray-50 min-h-screen overflow-hidden">
       <Sidebar
         activeItem={sidebarActive}
@@ -40,7 +38,6 @@ const Quotation = () => {
         onMobileClose={() => setMobileSidebarOpen(false)}
       />
 
-      {/* This div must be `min-w-0` so flex children can shrink below their content size */}
       <div className="flex-1 flex flex-col min-w-0">
         <Navbar
           title="Quotation"
@@ -49,7 +46,8 @@ const Quotation = () => {
           onMenuToggle={() => setMobileSidebarOpen(true)}
         />
         <main className="flex-1 p-3 sm:p-5 lg:p-7 overflow-auto min-w-0">
-          <QuotationHeader onCreateQuotation={() => {}} />
+          {/* QuotationHeader now handles navigation internally */}
+          <QuotationHeader />
           <QuotationFilters
             activeFilter={activeTab}
             onFilterChange={(filter) => { setActiveTab(filter); setCurrentPage(1) }}

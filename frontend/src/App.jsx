@@ -13,6 +13,8 @@ import EWayBills from './pages/EWayBills';
 import ProductServices from './pages/ProductService';
 import Inventory from './pages/InventoryPage';
 import InviteUser from './pages/InviteUser';
+import CreateQuotation from './component/Quotation/CreateQuotation';
+import CreatePurchase from './component/Purchase/CreatePurchase';
 
 // Simple auth guard — replace with your actual auth logic (context/redux/jwt check)
 const PrivateRoute = ({ children }) => {
@@ -58,6 +60,15 @@ const App = () => {
         />
 
         <Route
+          path="/create-quotation"
+          element={
+            <PrivateRoute>
+              <CreateQuotation />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
           path="/purchase"
           element={
             <PrivateRoute>
@@ -65,7 +76,14 @@ const App = () => {
             </PrivateRoute>
           }
         />
-
+<Route
+          path="/create-purchase"
+          element={
+            <PrivateRoute>
+              <CreatePurchase />
+            </PrivateRoute>
+          }
+        />
         <Route
           path="/gst"
           element={
@@ -74,6 +92,8 @@ const App = () => {
             </PrivateRoute>
           }
         />
+
+
 
         <Route
           path="/online-store"
