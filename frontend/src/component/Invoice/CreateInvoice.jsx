@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const PAYMENT_MODES = ['UPI', 'Cash', 'Bank Transfer', 'Cheque', 'Card']
 
@@ -136,6 +137,7 @@ const AddNewClientModal = ({ onClose, onSave }) => {
 
 // ─── Create Invoice Page ──────────────────────────────────────────────────────
 const CreateInvoice = ({ onBack, onSave, onSaveDraft }) => {
+  const navigate = useNavigate()
   const [invoiceNo] = useState(generateInvoiceNumber)
   const [date, setDate] = useState(today())
   const [dueDate, setDueDate] = useState(dueDefault())
@@ -179,7 +181,7 @@ const CreateInvoice = ({ onBack, onSave, onSaveDraft }) => {
       {/* Top bar */}
       <div className="sticky top-0 z-20 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 py-3 gap-3">
         <button
-          onClick={onBack}
+          onClick={() => (onBack ? onBack() : navigate('/invoice'))}
           className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors flex-shrink-0"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

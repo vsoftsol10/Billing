@@ -1,6 +1,9 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
-const InvoiceHeader = ({ onCreateInvoice }) => {
+const InvoiceHeader = () => {
+  const navigate = useNavigate()
+
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
       <div className="min-w-0 flex-1">
@@ -9,7 +12,7 @@ const InvoiceHeader = ({ onCreateInvoice }) => {
         </h2>
       </div>
       <button
-        onClick={onCreateInvoice}
+        onClick={() => navigate('/create-invoice')}
         className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-500 active:bg-amber-600 transition-colors text-sm sm:text-base whitespace-nowrap flex-shrink-0"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

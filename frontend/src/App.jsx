@@ -15,6 +15,7 @@ import Inventory from './pages/InventoryPage';
 import InviteUser from './pages/InviteUser';
 import CreateQuotation from './component/Quotation/CreateQuotation';
 import CreatePurchase from './component/Purchase/CreatePurchase';
+import CreateInvoice from './component/Invoice/CreateInvoice';
 
 // Simple auth guard — replace with your actual auth logic (context/redux/jwt check)
 const PrivateRoute = ({ children }) => {
@@ -64,6 +65,14 @@ const App = () => {
           element={
             <PrivateRoute>
               <CreateQuotation />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/create-invoice"
+          element={
+            <PrivateRoute>
+              <CreateInvoice />
             </PrivateRoute>
           }
         />

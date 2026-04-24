@@ -5,14 +5,12 @@ import InvoiceHeader from '../component/Invoice/InvoiceHeader'
 import InvoiceFilters from '../component/Invoice/InvoiceFilters'
 import InvoiceStats from '../component/Invoice/InvoiceStats'
 import InvoiceTable from '../component/Invoice/InvoiceTable'
-import CreateInvoice from '../component/Invoice/CreateInvoice'
 
 const Invoice = () => {
   const [activeFilter, setActiveFilter] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [sidebarActive, setSidebarActive] = useState('Invoice')
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
-  const [showCreate, setShowCreate] = useState(false)
 
   const sampleInvoices = [
     { id: '1019', client: 'Globa Inc',       amount: '₹ 8,750', date: '2026-01-14', gstNo: '2026-01-14', status: 'Pending' },
@@ -49,18 +47,6 @@ const Invoice = () => {
     </div>
   )
 
-  if (showCreate) {
-    return (
-      <Shell>
-        <CreateInvoice
-          onBack={() => setShowCreate(false)}
-          onSave={(data) => { console.log('Saved:', data); setShowCreate(false) }}
-          onSaveDraft={(data) => { console.log('Draft:', data); setShowCreate(false) }}
-        />
-      </Shell>
-    )
-  }
-
   return (
     <Shell>
       <Navbar
@@ -70,7 +56,7 @@ const Invoice = () => {
         onMenuToggle={() => setMobileSidebarOpen(true)}
       />
       <main className="flex-1 p-4 sm:p-6 lg:p-7 overflow-auto min-w-0">
-        <InvoiceHeader onCreateInvoice={() => setShowCreate(true)} />
+        <InvoiceHeader />
         {/* <InvoiceStats stats={stats} /> */}
         <InvoiceFilters
           onFilterChange={setActiveFilter}
