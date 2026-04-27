@@ -90,7 +90,7 @@ export default function InviteUser() {
         <AddUserModal
           onClose={() => setShowAddUser(false)}
           onAdd={handleAddUser}
-        />
+       /> 
       )}
     </div>
   );
