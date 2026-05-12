@@ -4,15 +4,28 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setTimeout(() => {
-      setIsLoading(false)
-      setIsSubmitted(true)
-    }, 2000)
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+  const handleSubmit = async (e) => {
+  e.preventDefault()
+  setIsLoading(true)
+  try {
+    const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.trim() }),
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      alert(data.message || 'Something went wrong.')
+      return
+    }
+    setIsSubmitted(true)   // ← only show success after real API call
+  } catch (err) {
+    alert('Network error. Please try again.')
+  } finally {
+    setIsLoading(false)
   }
+}
 
   return (
     <div className="min-h-screen flex items-center justify-center font-sans relative overflow-hidden bg-amber-50">

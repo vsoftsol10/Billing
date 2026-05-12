@@ -16,6 +16,7 @@ import InviteUser from './pages/InviteUser';
 import CreateQuotation from './component/Quotation/CreateQuotation';
 import CreatePurchase from './component/Purchase/CreatePurchase';
 import CreateInvoice from './component/Invoice/CreateInvoice';
+import ResetPassword from './pages/Resetpassword';
 
 // Simple auth guard — replace with your actual auth logic (context/redux/jwt check)
 const PrivateRoute = ({ children }) => {
@@ -31,6 +32,7 @@ const App = () => {
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<SignUp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Protected Routes */}
         <Route

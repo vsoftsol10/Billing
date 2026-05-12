@@ -1,48 +1,89 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const DEFAULT_EMAIL = 'admin@vbill.com'
-const DEFAULT_PASSWORD = 'vbill@123'
- 
-const Login = ({ onLogin }) => {
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+
+const Login = () => {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
- 
+
   const [showForgotModal, setShowForgotModal] = useState(false)
   const [forgotEmail, setForgotEmail] = useState('')
   const [forgotLoading, setForgotLoading] = useState(false)
   const [forgotSubmitted, setForgotSubmitted] = useState(false)
-  const navigate=useNavigate();
- 
-  const handleLogin = (e) => {
+  const [forgotError, setForgotError] = useState('')
+
+  const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
     setIsLoading(true)
-    setTimeout(() => {
-      setIsLoading(false)
-      if (email === DEFAULT_EMAIL && password === DEFAULT_PASSWORD) {
-        localStorage.setItem('token', 'dummy-token') // Set token on successful login
-        navigate('/dashboard')
-      } else {
-        setError('Invalid email or password. Try admin@vbill.com / vbill@123')
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.message || 'Login failed. Please try again.')
+        return
       }
-    }, 1200)
+
+      // ── Store token + user, redirect ─────────────────────
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      navigate('/dashboard')
+    } catch (err) {
+      setError('Network error. Please check your connection and try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
- 
-  const handleForgotSubmit = (e) => {
+
+  const handleForgotSubmit = async (e) => {
     e.preventDefault()
+    setForgotError('')
     setForgotLoading(true)
-    setTimeout(() => { setForgotLoading(false); setForgotSubmitted(true) }, 1500)
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail.trim() }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setForgotError(data.message || 'Something went wrong. Try again.')
+        return
+      }
+
+      setForgotSubmitted(true)
+    } catch (err) {
+      setForgotError('Network error. Please try again.')
+    } finally {
+      setForgotLoading(false)
+    }
   }
- 
+
   const closeModal = () => {
     setShowForgotModal(false)
-    setTimeout(() => { setForgotEmail(''); setForgotSubmitted(false); setForgotLoading(false) }, 300)
+    setTimeout(() => {
+      setForgotEmail('')
+      setForgotSubmitted(false)
+      setForgotLoading(false)
+      setForgotError('')
+    }, 300)
   }
- 
+
   return (
     <div className="min-h-screen flex font-sans">
       <style>{`
@@ -63,7 +104,7 @@ const Login = ({ onLogin }) => {
         @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
         .shake{animation:shake 0.4s ease}
       `}</style>
- 
+
       {/* Left Panel */}
       <div className="hidden md:flex flex-col justify-between relative w-[46%] bg-amber-400 p-10 overflow-hidden rounded-tr-[40%] rounded-br-3xl">
         <div className="blob absolute -bottom-16 -left-16 w-80 h-80 rounded-full bg-amber-300 opacity-60" />
@@ -75,9 +116,7 @@ const Login = ({ onLogin }) => {
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#f59e0b"/>
               </svg>
             </div>
-            <span className="font-display text-gray-900 text-lg font-bold tracking-tight">
-              <span>V</span>consTech
-            </span>
+            <span className="font-display text-gray-900 text-lg font-bold tracking-tight">VconsTech</span>
           </div>
         </div>
         <div className="relative z-10 text-center">
@@ -97,7 +136,7 @@ const Login = ({ onLogin }) => {
         </div>
         <p className="relative z-10 text-xs text-gray-700 font-medium text-center">Trusted by 100+ businesses</p>
       </div>
- 
+
       {/* Right Panel */}
       <div className="flex-1 bg-white flex items-center justify-center p-10">
         <div className="w-full max-w-sm">
@@ -105,12 +144,7 @@ const Login = ({ onLogin }) => {
             <h2 className="font-display text-2xl font-bold text-gray-900">Welcome Back</h2>
             <p className="text-gray-500 text-sm mt-1">Secure access to your billing system</p>
           </div>
- 
-          {/* Demo hint */}
-          <div className="slide-up slide-up-1 mb-5 p-3 rounded-xl bg-amber-50 border border-amber-100 text-xs text-amber-700">
-            <span className="font-semibold">Demo:</span> admin@vbill.com / vbill@123
-          </div>
- 
+
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="slide-up slide-up-2">
               <label className="block text-xs font-semibold text-gray-600 mb-1.5 tracking-wide uppercase">Email Address</label>
@@ -120,12 +154,13 @@ const Login = ({ onLogin }) => {
                     <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
                   </svg>
                 </span>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" required
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@company.com" required
                   className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 focus:bg-white"
                 />
               </div>
             </div>
- 
+
             <div className="slide-up slide-up-3">
               <label className="block text-xs font-semibold text-gray-600 mb-1.5 tracking-wide uppercase">Password</label>
               <div className="relative">
@@ -134,10 +169,12 @@ const Login = ({ onLogin }) => {
                     <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                   </svg>
                 </span>
-                <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password" required
+                <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password" required
                   className="w-full pl-10 pr-11 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 focus:bg-white"
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
                   {showPassword
                     ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                     : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -145,18 +182,20 @@ const Login = ({ onLogin }) => {
                 </button>
               </div>
               <div className="text-right mt-1.5">
-                <button type="button" onClick={() => setShowForgotModal(true)} className="text-xs text-amber-500 hover:text-amber-600 font-medium transition-colors">
+                <button type="button" onClick={() => setShowForgotModal(true)}
+                  className="text-xs text-amber-500 hover:text-amber-600 font-medium transition-colors">
                   Forgot password?
                 </button>
               </div>
             </div>
- 
+
             {error && (
-              <div className="shake text-xs text-rose-500 bg-rose-50 border border-rose-100 rounded-xl px-3.5 py-2.5">
+              <div className="shake text-xs text-rose-500 bg-rose-50 border border-rose-100 rounded-xl px-3.5 py-2.5 flex items-center gap-2">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 {error}
               </div>
             )}
- 
+
             <div className="slide-up slide-up-5 pt-1">
               <button type="submit" disabled={isLoading}
                 className="w-full bg-amber-400 hover:bg-amber-500 text-gray-900 font-display font-semibold text-sm py-3.5 rounded-xl disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all duration-200 hover:shadow-lg hover:shadow-amber-400/40 hover:-translate-y-0.5 active:translate-y-0"
@@ -168,14 +207,14 @@ const Login = ({ onLogin }) => {
               </button>
             </div>
           </form>
- 
+
           <p className="slide-up slide-up-6 text-center text-sm text-gray-500 mt-6">
             Don't have an account?{' '}
-            <a href="#" className="text-amber-500 hover:text-amber-600 font-semibold transition-colors">Sign up</a>
+            <a href="/register" className="text-amber-500 hover:text-amber-600 font-semibold transition-colors">Sign up</a>
           </p>
         </div>
       </div>
- 
+
       {/* Forgot Password Modal */}
       {showForgotModal && (
         <div className="backdrop-in fixed inset-0 z-50 flex items-center justify-center px-4"
@@ -208,11 +247,19 @@ const Login = ({ onLogin }) => {
                           <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
                         </svg>
                       </span>
-                      <input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} placeholder="you@company.com" required
+                      <input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)}
+                        placeholder="you@company.com" required
                         className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 placeholder-gray-300 transition-all duration-200 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 focus:bg-white"
                       />
                     </div>
                   </div>
+
+                  {forgotError && (
+                    <div className="text-xs text-rose-500 bg-rose-50 border border-rose-100 rounded-xl px-3.5 py-2.5">
+                      {forgotError}
+                    </div>
+                  )}
+
                   <button type="submit" disabled={forgotLoading}
                     className="w-full bg-amber-400 hover:bg-amber-500 text-gray-900 font-display font-semibold text-sm py-3 rounded-xl disabled:opacity-70 flex items-center justify-center gap-2 transition-all duration-200 hover:shadow-md"
                   >

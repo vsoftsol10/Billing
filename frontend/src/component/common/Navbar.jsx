@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const HamburgerIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -12,6 +13,7 @@ const Navbar = ({ title = 'Dashboard', subtitle, user = 'VBILL', onMenuToggle })
   const [hasNotif, setHasNotif] = useState(true)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -23,11 +25,18 @@ const Navbar = ({ title = 'Dashboard', subtitle, user = 'VBILL', onMenuToggle })
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // ✅ handleLogout is now at component scope, accessible by the button
+  const handleLogout = () => {
+    setDropdownOpen(false)
+    localStorage.removeItem('authToken')
+    sessionStorage.clear()
+    navigate('/')
+  }
+
   return (
     <header className="flex items-center justify-between px-4 sm:px-6 lg:px-7 py-3 sm:py-4 bg-white border-b border-gray-100 gap-3">
 
       <div className="flex items-center gap-3 min-w-0">
-        {/* Hamburger — mobile/tablet only */}
         <button
           onClick={onMenuToggle}
           className="lg:hidden flex-shrink-0 w-9 h-9 rounded-xl border border-gray-100 bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors"
@@ -50,7 +59,6 @@ const Navbar = ({ title = 'Dashboard', subtitle, user = 'VBILL', onMenuToggle })
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-        {/* Notification Bell */}
         <button
           onClick={() => setHasNotif(false)}
           className="relative w-9 h-9 rounded-xl border border-gray-100 bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors"
@@ -64,7 +72,6 @@ const Navbar = ({ title = 'Dashboard', subtitle, user = 'VBILL', onMenuToggle })
           )}
         </button>
 
-        {/* User Avatar + Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen((prev) => !prev)}
@@ -98,7 +105,7 @@ const Navbar = ({ title = 'Dashboard', subtitle, user = 'VBILL', onMenuToggle })
               </button>
               <button
                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
-                onClick={() => setDropdownOpen(false)}
+                onClick={handleLogout}
               >
                 <span className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-400 flex-shrink-0">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
