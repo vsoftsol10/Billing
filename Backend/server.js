@@ -2,6 +2,8 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import authRouter from './routes/authRoute.js'
+import purchaseRouter from './routes/purchaseRoute.js'
+import productRouter from './routes/productRoute.js'
 
 dotenv.config()
 
@@ -16,6 +18,8 @@ app.use(express.json())
 
 // Routes
 app.use('/api/auth', authRouter)
+app.use('/api/purchases', purchaseRouter)
+app.use('/api/products', productRouter)
 
 // Health check
 app.get('/', (req, res) => {

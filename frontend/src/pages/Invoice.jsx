@@ -5,19 +5,21 @@ import InvoiceHeader from '../component/Invoice/InvoiceHeader'
 import InvoiceFilters from '../component/Invoice/InvoiceFilters'
 import InvoiceStats from '../component/Invoice/InvoiceStats'
 import InvoiceTable from '../component/Invoice/InvoiceTable'
+import CreateInvoice from '../component/Invoice/CreateInvoice'
 
 const Invoice = () => {
   const [activeFilter, setActiveFilter] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [sidebarActive, setSidebarActive] = useState('Invoice')
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+  const [showCreateInvoice, setShowCreateInvoice] = useState(false)  // ← new
 
   const sampleInvoices = [
-    { id: '1019', client: 'Globa Inc',       amount: '₹ 8,750', date: '2026-01-14', gstNo: '2026-01-14', status: 'Pending' },
+    { id: '1019', client: 'Globa Inc',        amount: '₹ 8,750', date: '2026-01-14', gstNo: '2026-01-14', status: 'Pending' },
     { id: '1022', client: 'Stark Industries', amount: '₹ 4,550', date: '2026-01-09', gstNo: '2026-01-09', status: 'Open' },
-    { id: '1009', client: 'Soylent Corp',    amount: '₹ 2,950', date: '2026-01-10', gstNo: '2026-01-10', status: 'Open' },
-    { id: '1009', client: 'Soylent Corp',    amount: '₹ 2,950', date: '2026-01-10', gstNo: '2026-01-10', status: 'Update' },
-    { id: '1009', client: 'Soylent Corp',    amount: '₹ 2,950', date: '2026-01-10', gstNo: '2026-01-10', status: 'Update' },
+    { id: '1009', client: 'Soylent Corp',     amount: '₹ 2,950', date: '2026-01-10', gstNo: '2026-01-10', status: 'Open' },
+    { id: '1009', client: 'Soylent Corp',     amount: '₹ 2,950', date: '2026-01-10', gstNo: '2026-01-10', status: 'Update' },
+    { id: '1009', client: 'Soylent Corp',     amount: '₹ 2,950', date: '2026-01-10', gstNo: '2026-01-10', status: 'Update' },
   ]
 
   const stats = {
@@ -27,6 +29,7 @@ const Invoice = () => {
     overdue: sampleInvoices.filter(i => i.status === 'Update').length,
   }
 
+  // ─── Shared shell (sidebar + navbar always visible) ──────────────────────
   const Shell = ({ children }) => (
     <div className="relative flex bg-gray-50 min-h-screen overflow-hidden">
       <Sidebar
@@ -42,21 +45,49 @@ const Invoice = () => {
         />
       )}
       <div className="flex-1 flex flex-col min-w-0 w-full overflow-auto">
+        <Navbar
+          title={showCreateInvoice ? 'Create Invoice' : 'Invoice'}
+          subtitle={true}
+          user="VBILL"
+          onMenuToggle={() => setMobileSidebarOpen(true)}
+        />
         {children}
       </div>
     </div>
   )
 
+  // ─── Create Invoice view (inside shell, no standalone full-screen) ────────
+  if (showCreateInvoice) {
+    return (
+      <Shell>
+        {/*
+          Pass onBack so clicking the back arrow returns to the invoice list.
+          Pass onSave / onSaveDraft to handle saving, then navigate back.
+        */}
+        <CreateInvoice
+          onBack={() => setShowCreateInvoice(false)}
+          onSave={(data) => {
+            console.log('Saved invoice:', data)
+            setShowCreateInvoice(false)
+          }}
+          onSaveDraft={(data) => {
+            console.log('Saved draft:', data)
+            setShowCreateInvoice(false)
+          }}
+        />
+      </Shell>
+    )
+  }
+
+  // ─── Invoice list view ────────────────────────────────────────────────────
   return (
     <Shell>
-      <Navbar
-        title="Invoice"
-        subtitle={true}
-        user="VBILL"
-        onMenuToggle={() => setMobileSidebarOpen(true)}
-      />
       <main className="flex-1 p-4 sm:p-6 lg:p-7 overflow-auto min-w-0">
-        <InvoiceHeader />
+        {/*
+          Pass onCreateClick so the header button triggers the in-shell view
+          instead of navigating away with react-router.
+        */}
+        <InvoiceHeader onCreateClick={() => setShowCreateInvoice(true)} />
         {/* <InvoiceStats stats={stats} /> */}
         <InvoiceFilters
           onFilterChange={setActiveFilter}

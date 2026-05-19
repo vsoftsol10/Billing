@@ -1,43 +1,33 @@
-export const tabs = ["All", "Pending", "Paid", "Cancelled", "Draft"];
+export const tabs = ["All", "PENDING", "PAID", "CANCELLED", "DRAFT"];
 
-export const initialPurchases = [
-  { id: 1019, vendor: "Globe Inc",        mode: "UPI", amount: 8750, date: "2026-01-14", status: "Pending" },
-  { id: 1022, vendor: "Stark Industries", mode: "UPI", amount: 4550, date: "2026-01-09", status: "Paid"    },
-  { id: 1009, vendor: "Soylent Corp",     mode: "UPI", amount: 2950, date: "2026-01-10", status: "Draft"   },
-  { id: 1009, vendor: "Soylent Corp",     mode: "UPI", amount: 2950, date: "2026-01-10", status: "Cancelled" },
-  { id: 1009, vendor: "Soylent Corp",     mode: "UPI", amount: 2950, date: "2026-01-10", status: "Pending"  },
-];
-   
 export const statusStyles = {
-  Pending:   "bg-orange-100 text-orange-500 border border-orange-300",
-  Paid:      "bg-green-100  text-green-700  border border-green-300",
-  Cancelled: "bg-red-100    text-red-500    border border-red-300",
-  Draft:     "bg-gray-100   text-gray-500   border border-gray-300",
+  PENDING:   "bg-orange-100 text-orange-500 border border-orange-300",
+  PAID:      "bg-green-100  text-green-700  border border-green-300",
+  CANCELLED: "bg-red-100    text-red-500    border border-red-300",
+  DRAFT:     "bg-gray-100   text-gray-500   border border-gray-300",
 };
 
-export const statusOptions = [
-  "Pending",
-  "Paid",
-  "Cancelled",
-  "Draft",
-];
+export const statusOptions = ["PENDING", "PAID", "CANCELLED", "DRAFT"];
 
-export const modeOptions = [
-  "UPI",
-  "Cash",
-  "Card",
-  "Net Banking",
-  "Cheque",
-];
+export const modeOptions = ["UPI", "CASH", "CARD", "BANK_TRANSFER", "CHEQUE", "OTHER"];
 
 export const modeStyles = {
-  UPI:          "bg-blue-500 text-white",
-  Cash:         "bg-green-500 text-white",
-  Card:         "bg-purple-500 text-white",
-  "Net Banking": "bg-indigo-500 text-white",
-  Cheque:       "bg-amber-500 text-white",
+  UPI:           "bg-blue-500   text-white",
+  CASH:          "bg-green-500  text-white",
+  CARD:          "bg-purple-500 text-white",
+  BANK_TRANSFER: "bg-indigo-500 text-white",
+  CHEQUE:        "bg-amber-500  text-white",
+  OTHER:         "bg-gray-400   text-white",
 };
 
-export function formatINR(n) {
-  return "₹ " + n.toLocaleString("en-IN");
-}
+// In purchaseConstants.js, make formatINR handle Decimal objects:
+// ✅ Handles Prisma Decimal strings, numbers, null, undefined
+export const formatINR = (val) => {
+  const num = parseFloat(val);
+  if (isNaN(num)) return '—';
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: 2,
+  }).format(num);
+};

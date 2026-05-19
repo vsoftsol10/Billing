@@ -5,6 +5,7 @@ import InventoryHeader  from "../component/Inventory/InventoryHeader";
 import InventoryStats   from "../component/Inventory/InventoryStats";
 import InventoryFilters from "../component/Inventory/InventoryFilters";
 import InventoryTable   from "../component/Inventory/InventoryTable";
+import StockModal from "../component/Inventory/StockModal";
 
 const INITIAL_ITEMS = [
   { id: 1, name: "Globe Inc",        qty: "04", salesPrice: "₹ 8,750", purchasePrice: "₹ 8,750", date: "2026-01-14", status: "Pending" },
@@ -17,11 +18,13 @@ const INITIAL_ITEMS = [
 const STATUS_CYCLE = ["Pending", "Open", "Update"];
 
 export default function InventoryPage() {
-  const [items,        setItems]        = useState(INITIAL_ITEMS);
-  const [search,       setSearch]       = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [items,             setItems]             = useState(INITIAL_ITEMS);
+  const [search,            setSearch]            = useState("");
+  const [statusFilter,      setStatusFilter]      = useState("All");
+  const [showStockModal,    setShowStockModal]    = useState(false);
+  const [sidebarActive,     setSidebarActive]     = useState("Inventory");
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Derived filtered list
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
       const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
@@ -30,7 +33,6 @@ export default function InventoryPage() {
     });
   }, [items, search, statusFilter]);
 
-  // Cycle status on badge click
   const handleStatusChange = (id) => {
     setItems((prev) =>
       prev.map((item) =>
@@ -41,12 +43,10 @@ export default function InventoryPage() {
     );
   };
 
+  const handleAddNew   = () => setShowStockModal(true);                        // ✅ only once
+  const handleAddStock = (newItem) => setItems((prev) => [...prev, newItem]);  // ✅ kept
   const handleStockIn  = (id) => alert(`Stock In  → item #${id}`);
   const handleStockOut = (id) => alert(`Stock Out → item #${id}`);
-  const handleAddNew   = ()  => alert("Open Add New modal");
-
-  const [sidebarActive, setSidebarActive] = useState("Inventory");
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
     <div className="relative flex bg-gray-50 min-h-screen overflow-hidden font-sans">
@@ -75,16 +75,13 @@ export default function InventoryPage() {
         <main className="flex-1 p-4 sm:p-6 lg:p-7 overflow-auto min-w-0">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
             <InventoryHeader onAddNew={handleAddNew} />
-
             <InventoryStats />
-
             <InventoryFilters
               search={search}
               onSearch={setSearch}
               statusFilter={statusFilter}
               onStatusFilter={setStatusFilter}
             />
-
             <InventoryTable
               items={filteredItems}
               onStatusChange={handleStatusChange}
@@ -94,6 +91,13 @@ export default function InventoryPage() {
           </div>
         </main>
       </div>
+
+      {showStockModal && (
+        <StockModal
+          onClose={() => setShowStockModal(false)}
+          onAdd={handleAddStock}
+        />
+      )}
     </div>
   );
 }
