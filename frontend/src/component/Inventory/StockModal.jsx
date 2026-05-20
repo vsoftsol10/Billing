@@ -1,38 +1,44 @@
 // StockModal.jsx
 import { useState } from "react";
 
-const CATEGORIES = ["Electronics", "Furniture", "Stationery", "Raw Material", "Finished Goods"];
-
-export default function StockModal({ onClose, onAdd }) {
+export default function StockModal({ categories = [], onClose, onAdd }) {
   const [form, setForm] = useState({
-    quantityValue: "", quantityUnit: "PCS",
-    purchase: "", category: "",
-    stockValue: "", remark: "",
+    name: "",
+    quantityValue: "",
+    quantityUnit: "PCS",
+    purchase: "",
+    categoryId: "",
+    stockValue: "",
+    remark: "",
   });
   const [errors, setErrors] = useState({});
 
-  const set = (k, v) => { setForm(f => ({ ...f, [k]: v })); setErrors(e => ({ ...e, [k]: "" })); };
+  const set = (k, v) => {
+    setForm(f => ({ ...f, [k]: v }));
+    setErrors(e => ({ ...e, [k]: "" }));
+  };
 
   const validate = () => {
     const e = {};
+    if (!form.name.trim())          e.name          = "Item name is required";
     if (!form.quantityValue.trim()) e.quantityValue = "Quantity is required";
-    if (!form.purchase.trim())      e.purchase      = "Purchase is required";
-    if (!form.category)             e.category      = "Category is required";
-    if (!form.stockValue.trim())    e.stockValue    = "Stock value is required";
+    if (!form.stockValue.trim())    e.stockValue    = "Selling price is required";
     return e;
   };
 
   const handleSubmit = () => {
     const e = validate();
     if (Object.keys(e).length) { setErrors(e); return; }
+
+    // Send raw values — InventoryPage.handleAddStock maps these to the API
     onAdd({
-      id: Date.now(),
-      name: form.remark || "New Item",
-      qty: form.quantityValue,
-      salesPrice: `₹ ${form.stockValue}`,
-      purchasePrice: `₹ ${form.purchase}`,
-      date: new Date().toISOString().slice(0, 10),
-      status: "Pending",
+      name:          form.name,
+      quantityValue: form.quantityValue,
+      quantityUnit:  form.quantityUnit,
+      purchase:      form.purchase,
+      categoryId:    form.categoryId || undefined,
+      stockValue:    form.stockValue,
+      remark:        form.remark,
     });
     onClose();
   };
@@ -69,13 +75,27 @@ export default function StockModal({ onClose, onAdd }) {
 
         <div className="space-y-5">
 
+          {/* Item Name */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+              Item Name <span className="text-red-400">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter item name"
+              value={form.name}
+              onChange={(e) => set("name", e.target.value)}
+              className={inputClass("name")}
+            />
+            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+          </div>
+
           {/* Quantity Information */}
           <div>
             <p className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-3">
               Quantity Information
             </p>
 
-            {/* Quantity row: value + unit */}
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1.5">
@@ -83,7 +103,7 @@ export default function StockModal({ onClose, onAdd }) {
                 </label>
                 <input
                   type="number"
-                  placeholder="Select Category"
+                  placeholder="0"
                   value={form.quantityValue}
                   onChange={(e) => set("quantityValue", e.target.value)}
                   className={inputClass("quantityValue")}
@@ -91,9 +111,7 @@ export default function StockModal({ onClose, onAdd }) {
                 {errors.quantityValue && <p className="text-red-500 text-xs mt-1">{errors.quantityValue}</p>}
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1.5">
-                  Quantity <span className="text-red-400">*</span>
-                </label>
+                <label className="block text-xs font-semibold text-gray-600 mb-1.5">Unit</label>
                 <select
                   value={form.quantityUnit}
                   onChange={(e) => set("quantityUnit", e.target.value)}
@@ -106,35 +124,34 @@ export default function StockModal({ onClose, onAdd }) {
               </div>
             </div>
 
-            {/* Purchase */}
+            {/* Purchase Price */}
             <div className="mb-3">
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Purchase</label>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Purchase Price</label>
               <input
-                type="text"
+                type="number"
                 placeholder="Enter purchase price"
                 value={form.purchase}
                 onChange={(e) => set("purchase", e.target.value)}
                 className={inputClass("purchase")}
               />
-              {errors.purchase && <p className="text-red-500 text-xs mt-1">{errors.purchase}</p>}
             </div>
 
-            {/* Category */}
+            {/* Category — uses real categories from API */}
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Category</label>
               <select
-                value={form.category}
-                onChange={(e) => set("category", e.target.value)}
-                className={selectClass("category")}
+                value={form.categoryId}
+                onChange={(e) => set("categoryId", e.target.value)}
+                className={selectClass("categoryId")}
               >
                 <option value="">Select Category</option>
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                {categories.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
               </select>
-              {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
             </div>
           </div>
 
-          {/* Divider */}
           <hr className="border-gray-100" />
 
           {/* Stock Details */}
@@ -143,27 +160,18 @@ export default function StockModal({ onClose, onAdd }) {
               Stock Details
             </p>
 
-            {/* Stock Value */}
+            {/* Selling Price */}
             <div className="mb-3">
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Stock Value</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Enter stock value"
-                  value={form.stockValue}
-                  onChange={(e) => set("stockValue", e.target.value)}
-                  className={`${inputClass("stockValue")} pr-8`}
-                />
-                {/* up/down arrows like the screenshot */}
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-0.5">
-                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
-                    <path d="M1 5L5 1L9 5" stroke="#aaa" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
-                    <path d="M1 1L5 5L9 1" stroke="#aaa" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+                Selling Price <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="number"
+                placeholder="Enter selling price"
+                value={form.stockValue}
+                onChange={(e) => set("stockValue", e.target.value)}
+                className={inputClass("stockValue")}
+              />
               {errors.stockValue && <p className="text-red-500 text-xs mt-1">{errors.stockValue}</p>}
             </div>
 
@@ -181,7 +189,6 @@ export default function StockModal({ onClose, onAdd }) {
             </div>
           </div>
 
-          {/* Submit */}
           <button
             onClick={handleSubmit}
             className="w-full py-3 rounded-xl text-sm font-bold bg-yellow-400
@@ -193,7 +200,6 @@ export default function StockModal({ onClose, onAdd }) {
             </svg>
             Add Quantity
           </button>
-
         </div>
       </div>
     </div>

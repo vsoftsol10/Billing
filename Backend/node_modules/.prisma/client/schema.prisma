@@ -148,6 +148,9 @@ model Product {
   stockMovements StockMovement[]
 
   @@unique([businessId, sku])
+  @@index([businessId], map: "idx_products_business_id")
+  @@index([categoryId], map: "idx_products_category_id")
+  @@index([stockQuantity], map: "idx_products_stock_qty")
   @@map("products")
 }
 
@@ -163,6 +166,7 @@ model StockMovement {
   createdAt      DateTime        @default(now()) @map("created_at")
   product        Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
 
+  @@index([productId], map: "idx_stock_movements_product")
   @@map("stock_movements")
 }
 
@@ -192,6 +196,8 @@ model Invoice {
   payments       Payment[]
 
   @@unique([businessId, invoiceNumber])
+  @@index([businessId], map: "idx_invoices_business_id")
+  @@index([customerId], map: "idx_invoices_customer_id")
   @@map("invoices")
 }
 
@@ -289,6 +295,7 @@ model Purchase {
   supplier       Supplier?      @relation(fields: [supplierId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([businessId, purchaseNumber])
+  @@index([businessId], map: "idx_purchases_business_id")
   @@map("purchases")
 }
 

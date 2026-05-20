@@ -81,10 +81,17 @@ function StatCard({ label, value, sub, icon, accent }) {
   );
 }
 
-export default function InventoryStats() {
+export default function InventoryStats({ stats }) {
+  const cards = [
+    { ...statCards[0], value: stats?.stockValue    ?? "₹ 0",  sub: `+${stats?.newThisMonth ?? 0} this month` },
+    { ...statCards[1], value: stats?.totalProducts ?? "0",    sub: `+${stats?.newThisMonth ?? 0} last month` },
+    { ...statCards[2], value: stats?.lowStock      ?? "0",    sub: "Need Restocking" },
+    { ...statCards[3], value: stats?.outOfStock    ?? "0",    sub: "Out Of Inventory" },
+  ];
+
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
-      {statCards.map((card) => (
+      {cards.map((card) => (
         <StatCard key={card.label} {...card} />
       ))}
     </div>

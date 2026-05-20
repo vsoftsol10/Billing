@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import authRouter from './routes/authRoute.js'
 import purchaseRouter from './routes/purchaseRoute.js'
 import productRouter from './routes/productRoute.js'
+import inventoryRouter from './routes/inventoryroutes.js'
 
 dotenv.config()
 
@@ -20,7 +21,7 @@ app.use(express.json())
 app.use('/api/auth', authRouter)
 app.use('/api/purchases', purchaseRouter)
 app.use('/api/products', productRouter)
-
+app.use('/api/inventory',inventoryRouter)
 // Health check
 app.get('/', (req, res) => {
   res.json({ message: 'VBILL API is running' })
