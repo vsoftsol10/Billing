@@ -5,6 +5,8 @@ import authRouter from './routes/authRoute.js'
 import purchaseRouter from './routes/purchaseRoute.js'
 import productRouter from './routes/productRoute.js'
 import inventoryRouter from './routes/inventoryroutes.js'
+import invoiceRouter from './routes/invoiceRoute.js'
+import customerRouter from './routes/customerRoute.js'
 
 dotenv.config()
 
@@ -22,9 +24,17 @@ app.use('/api/auth', authRouter)
 app.use('/api/purchases', purchaseRouter)
 app.use('/api/products', productRouter)
 app.use('/api/inventory',inventoryRouter)
+app.use('/api/invoices',  invoiceRouter)
+app.use('/api/customers', customerRouter)
 // Health check
 app.get('/', (req, res) => {
   res.json({ message: 'VBILL API is running' })
+})
+
+// Global error handler
+app.use((err, _req, res, _next) => {
+  console.error(err)
+  res.status(err.status ?? 500).json({ message: err.message ?? 'Internal server error' })
 })
 
 const PORT = process.env.PORT || 3000

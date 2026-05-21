@@ -1,25 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import InvoicePagination from './InvoicePagination'
+import { fetchInvoices, updateInvoiceStatus, deleteInvoice } from '../../api/invoiceService'
 
-const DUMMY_INVOICES = [
-  { id: 'INV-001', client: 'Acme Corp', amount: '₹45,000', date: '2024-04-05', gstNo: '29ABCDE1234F1Z5', status: 'Paid' },
-  { id: 'INV-002', client: 'Bright Solutions', amount: '₹12,500', date: '2024-05-12', gstNo: '27XYZAB5678G2H6', status: 'Pending' },
-  { id: 'INV-003', client: 'CloudNine Ltd', amount: '₹78,000', date: '2024-06-20', gstNo: '33PQRST9012I3J7', status: 'Open' },
-  { id: 'INV-004', client: 'Delta Traders', amount: '₹9,800', date: '2024-07-01', gstNo: '24UVWXY3456K4L8', status: 'Draft' },
-  { id: 'INV-005', client: 'Eagle Enterprises', amount: '₹33,200', date: '2024-08-15', gstNo: '19MNOPQ7890M5N9', status: 'Cancelled' },
-  { id: 'INV-006', client: 'FutureTech', amount: '₹21,750', date: '2024-09-22', gstNo: '06ABCDE2345O6P0', status: 'Paid' },
-  { id: 'INV-007', client: 'GreenMart', amount: '₹55,000', date: '2024-10-10', gstNo: '09XYZAB6789Q7R1', status: 'Pending' },
-  { id: 'INV-008', client: 'Horizon Labs', amount: '₹16,400', date: '2024-11-03', gstNo: '36PQRST0123S8T2', status: 'Open' },
-  { id: 'INV-009', client: 'Indus Retail', amount: '₹62,300', date: '2024-12-18', gstNo: '22UVWXY4567U9V3', status: 'Paid' },
-  { id: 'INV-010', client: 'Jupiter & Co', amount: '₹8,100', date: '2025-01-07', gstNo: '32MNOPQ8901W0X4', status: 'Draft' },
-  { id: 'INV-011', client: 'Kestrel Infra', amount: '₹94,500', date: '2025-02-14', gstNo: '21ABCDE3456Y1Z5', status: 'Pending' },
-  { id: 'INV-012', client: 'Luminary Pvt', amount: '₹37,600', date: '2025-03-25', gstNo: '07XYZAB7890A2B6', status: 'Cancelled' },
-  { id: 'INV-013', client: 'Luminary Pvt', amount: '₹45,600', date: '2026-03-25', gstNo: '07XYZAB7890A2B6', status: 'Pending' },
-  { id: 'INV-014', client: 'Luminary Pvt', amount: '₹45,600', date: '2026-03-25', gstNo: '07XYZAB7890A2B6', status: 'Open' },
-]
-
+// ─── Financial year options (must match backend query params) ────────────────
 const FINANCIAL_YEARS = [
-  { label: 'All Years', value: 'all' },
+  { label: 'All Years',  value: 'all' },
   { label: 'FY 2025–26', value: '2025-26', start: '2025-04-01', end: '2026-03-31' },
   { label: 'FY 2024–25', value: '2024-25', start: '2024-04-01', end: '2025-03-31' },
   { label: 'FY 2023–24', value: '2023-24', start: '2023-04-01', end: '2024-03-31' },
@@ -29,18 +14,29 @@ const STATUS_OPTIONS = ['Pending', 'Open', 'Paid', 'Cancelled', 'Draft']
 
 const getStatusColor = (status) => {
   const colors = {
-    'Pending':   'bg-amber-100 text-amber-800',
-    'Open':      'bg-green-100 text-green-800',
-    'Update':    'bg-blue-100 text-blue-800',
-    'Paid':      'bg-green-100 text-green-800',
-    'Cancelled': 'bg-red-100 text-red-800',
-    'Draft':     'bg-gray-100 text-gray-800',
+    Pending:   'bg-amber-100 text-amber-800',
+    Open:      'bg-green-100 text-green-800',
+    Paid:      'bg-green-100 text-green-800',
+    Cancelled: 'bg-red-100 text-red-800',
+    Draft:     'bg-gray-100 text-gray-800',
+    Overdue:   'bg-red-100 text-red-800',
   }
   return colors[status] || 'bg-gray-100 text-gray-800'
 }
 
-// ─── Status Dropdown ────────────────────────────────────────────────────────
-const StatusDropdown = ({ value, onChange }) => {
+// ─── Loading skeleton row ─────────────────────────────────────────────────────
+const SkeletonRow = () => (
+  <tr className="animate-pulse">
+    {[...Array(7)].map((_, i) => (
+      <td key={i} className="px-4 lg:px-6 py-4">
+        <div className="h-4 bg-gray-200 rounded w-3/4" />
+      </td>
+    ))}
+  </tr>
+)
+
+// ─── Status Dropdown ──────────────────────────────────────────────────────────
+const StatusDropdown = ({ value, onChange, loading }) => {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -53,25 +49,25 @@ const StatusDropdown = ({ value, onChange }) => {
   return (
     <div className="relative w-fit" ref={ref}>
       <span
-        onClick={() => setOpen(p => !p)}
-        className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-fit cursor-pointer select-none ${getStatusColor(value)}`}
+        onClick={() => !loading && setOpen(p => !p)}
+        className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-fit
+          ${loading ? 'opacity-50 cursor-wait' : 'cursor-pointer select-none'}
+          ${getStatusColor(value)}`}
       >
-        {value}
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="6 9 12 15 18 9"/>
-        </svg>
+        {loading ? '…' : value}
+        {!loading && (
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        )}
       </span>
       {open && (
-        <div
-          className="absolute left-0 mt-1 w-36 bg-white rounded-lg border border-gray-200 shadow-lg z-30 overflow-hidden"
-          style={{ animation: 'fadeSlideDown 0.12s ease' }}
-        >
+        <div className="absolute left-0 mt-1 w-36 bg-white rounded-lg border border-gray-200 shadow-lg z-30 overflow-hidden"
+          style={{ animation: 'fadeSlideDown 0.12s ease' }}>
           {STATUS_OPTIONS.map(s => (
-            <button
-              key={s}
+            <button key={s}
               onClick={() => { onChange(s); setOpen(false) }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-50 transition-colors text-left"
-            >
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-50 transition-colors text-left">
               <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getStatusColor(s)}`}>{s}</span>
             </button>
           ))}
@@ -81,8 +77,8 @@ const StatusDropdown = ({ value, onChange }) => {
   )
 }
 
-// ─── Action Dropdown ─────────────────────────────────────────────────────────
-const ActionDropdown = ({ invoiceId, onEdit, onDelete }) => {
+// ─── Action Dropdown ──────────────────────────────────────────────────────────
+const ActionDropdown = ({ invoice, onDelete, deleting }) => {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -94,42 +90,32 @@ const ActionDropdown = ({ invoiceId, onEdit, onDelete }) => {
 
   return (
     <div className="relative" ref={ref}>
-      <button
-        onClick={() => setOpen(p => !p)}
-        className="text-gray-400 hover:text-gray-600 transition-colors p-1.5 rounded-md hover:bg-gray-100"
-      >
+      <button onClick={() => setOpen(p => !p)}
+        className="text-gray-400 hover:text-gray-600 transition-colors p-1.5 rounded-md hover:bg-gray-100">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="12" cy="5" r="2" />
-          <circle cx="12" cy="12" r="2" />
-          <circle cx="12" cy="19" r="2" />
+          <circle cx="12" cy="5" r="2"/>
+          <circle cx="12" cy="12" r="2"/>
+          <circle cx="12" cy="19" r="2"/>
         </svg>
       </button>
       {open && (
-        <div
-          className="absolute right-0 mt-1 w-32 bg-white rounded-lg border border-gray-200 shadow-lg z-30 overflow-hidden"
-          style={{ animation: 'fadeSlideDown 0.12s ease' }}
-        >
+        <div className="absolute right-0 mt-1 w-32 bg-white rounded-lg border border-gray-200 shadow-lg z-30 overflow-hidden"
+          style={{ animation: 'fadeSlideDown 0.12s ease' }}>
           <button
-            onClick={() => { setOpen(false); if (onEdit) onEdit(invoiceId) }}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors text-left"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-            Edit
-          </button>
-          <button
-            onClick={() => { setOpen(false); if (onDelete) onDelete(invoiceId) }}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-              <line x1="10" y1="11" x2="10" y2="17"/>
-              <line x1="14" y1="11" x2="14" y2="17"/>
-            </svg>
-            Delete
+            onClick={() => { setOpen(false); onDelete(invoice) }}
+            disabled={deleting}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors text-left disabled:opacity-50">
+            {deleting ? (
+              <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+              </svg>
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            )}
+            {deleting ? 'Cancelling…' : 'Delete'}
           </button>
         </div>
       )}
@@ -137,7 +123,7 @@ const ActionDropdown = ({ invoiceId, onEdit, onDelete }) => {
   )
 }
 
-// ─── FY Filter ───────────────────────────────────────────────────────────────
+// ─── FY Filter ────────────────────────────────────────────────────────────────
 const FYFilter = ({ selected, onChange }) => {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
@@ -152,12 +138,10 @@ const FYFilter = ({ selected, onChange }) => {
 
   return (
     <div className="relative flex-shrink-0" ref={ref}>
-      <button
-        onClick={() => setOpen(p => !p)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap"
-      >
+      <button onClick={() => setOpen(p => !p)}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
           <line x1="16" y1="2" x2="16" y2="6"/>
           <line x1="8" y1="2" x2="8" y2="6"/>
           <line x1="3" y1="10" x2="21" y2="10"/>
@@ -169,17 +153,12 @@ const FYFilter = ({ selected, onChange }) => {
         </svg>
       </button>
       {open && (
-        <div
-          className="absolute right-0 mt-1 w-40 bg-white rounded-lg border border-gray-200 shadow-lg z-30 overflow-hidden"
-          style={{ animation: 'fadeSlideDown 0.12s ease' }}
-        >
+        <div className="absolute right-0 mt-1 w-40 bg-white rounded-lg border border-gray-200 shadow-lg z-30 overflow-hidden"
+          style={{ animation: 'fadeSlideDown 0.12s ease' }}>
           {FINANCIAL_YEARS.map(fy => (
-            <button
-              key={fy.value}
-              onClick={() => { onChange(fy.value); setOpen(false) }}
+            <button key={fy.value} onClick={() => { onChange(fy.value); setOpen(false) }}
               className={`w-full text-left px-4 py-2.5 text-xs font-medium transition-colors
-                ${fy.value === selected ? 'bg-amber-50 text-amber-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'}`}
-            >
+                ${fy.value === selected ? 'bg-amber-50 text-amber-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'}`}>
               {fy.label}
             </button>
           ))}
@@ -189,21 +168,27 @@ const FYFilter = ({ selected, onChange }) => {
   )
 }
 
-// ─── Mobile Card ─────────────────────────────────────────────────────────────
-const InvoiceCard = ({ invoice, onStatusChange, onEdit, onDelete }) => (
+// ─── Mobile Card ──────────────────────────────────────────────────────────────
+const InvoiceCard = ({ invoice, onStatusChange, onDelete, updatingId, deletingId }) => (
   <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
-    {/* Top row */}
     <div className="flex items-start justify-between gap-2">
       <div>
         <p className="text-sm text-gray-900">{invoice.id}</p>
         <p className="text-sm text-gray-600 mt-0.5">{invoice.client}</p>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
-        <StatusDropdown value={invoice.status} onChange={(s) => onStatusChange(invoice.id, s)} />
-        <ActionDropdown invoiceId={invoice.id} onEdit={onEdit} onDelete={onDelete} />
+        <StatusDropdown
+          value={invoice.status}
+          loading={updatingId === invoice.dbId}
+          onChange={(s) => onStatusChange(invoice, s)}
+        />
+        <ActionDropdown
+          invoice={invoice}
+          onDelete={onDelete}
+          deleting={deletingId === invoice.dbId}
+        />
       </div>
     </div>
-    {/* Details row */}
     <div className="flex items-center justify-between text-xs text-gray-500 pt-1 border-t border-gray-100">
       <div className="flex flex-col gap-1">
         <span className="font-semibold text-gray-900 text-sm">{invoice.amount}</span>
@@ -214,47 +199,107 @@ const InvoiceCard = ({ invoice, onStatusChange, onEdit, onDelete }) => (
   </div>
 )
 
+// ─── Error banner ─────────────────────────────────────────────────────────────
+const ErrorBanner = ({ message, onRetry }) => (
+  <div className="flex items-center justify-between px-4 py-3 bg-red-50 border border-red-200 rounded-lg mx-4 my-3 text-sm text-red-700">
+    <span>{message}</span>
+    {onRetry && (
+      <button onClick={onRetry} className="ml-3 text-red-600 font-semibold hover:underline flex-shrink-0">
+        Retry
+      </button>
+    )}
+  </div>
+)
+
 // ─── Main Table ───────────────────────────────────────────────────────────────
-const InvoiceTable = ({ externalFilter = 'All', externalSearch = '', onEdit, onDelete }) => {
-  const [invoices, setInvoices] = useState(DUMMY_INVOICES)
-  const [search, setSearch] = useState('')
-  const [fyFilter, setFyFilter] = useState('all')
+const InvoiceTable = ({
+  externalFilter = 'All',
+  externalSearch = '',
+  refreshKey = 0,
+  onRefresh,
+}) => {
+  const [invoices, setInvoices]     = useState([])
+  const [total, setTotal]           = useState(0)
+  const [loading, setLoading]       = useState(true)
+  const [error, setError]           = useState(null)
+  const [search, setSearch]         = useState('')
+  const [fyFilter, setFyFilter]     = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
+  const [updatingId, setUpdatingId] = useState(null)   // dbId being status-updated
+  const [deletingId, setDeletingId] = useState(null)   // dbId being deleted
   const itemsPerPage = 10
 
-  const updateStatus = (id, newStatus) => {
-    setInvoices(prev => prev.map(inv => inv.id === id ? { ...inv, status: newStatus } : inv))
+  // ── Fetch invoices from API ───────────────────────────────────────────────
+  const loadInvoices = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      const fy = FINANCIAL_YEARS.find(f => f.value === fyFilter)
+
+      const data = await fetchInvoices({
+        search:   externalSearch || search,
+        status:   externalFilter !== 'All' ? externalFilter : undefined,
+        fyStart:  fy?.start,
+        fyEnd:    fy?.end,
+        page:     currentPage,
+        limit:    itemsPerPage,
+      })
+
+      setInvoices(data.invoices)
+      setTotal(data.total)
+    } catch (err) {
+      setError(err.message || 'Failed to load invoices.')
+    } finally {
+      setLoading(false)
+    }
+  }, [externalFilter, externalSearch, search, fyFilter, currentPage, refreshKey])
+
+  useEffect(() => { loadInvoices() }, [loadInvoices])
+
+  // Reset to page 1 when filters change
+  useEffect(() => { setCurrentPage(1) }, [search, fyFilter, externalFilter, externalSearch, refreshKey])
+
+  // ── Status change ─────────────────────────────────────────────────────────
+  const handleStatusChange = async (invoice, newStatus) => {
+    if (newStatus === invoice.status) return
+    setUpdatingId(invoice.dbId)
+    // Optimistic update
+    setInvoices(prev =>
+      prev.map(inv => inv.dbId === invoice.dbId ? { ...inv, status: newStatus } : inv)
+    )
+    try {
+      await updateInvoiceStatus(invoice.dbId, newStatus)
+      onRefresh?.()     // refresh stats in parent
+    } catch (err) {
+      // Revert on failure
+      setInvoices(prev =>
+        prev.map(inv => inv.dbId === invoice.dbId ? { ...inv, status: invoice.status } : inv)
+      )
+      setError(`Failed to update status: ${err.message}`)
+    } finally {
+      setUpdatingId(null)
+    }
   }
 
-  const filtered = invoices.filter(inv => {
-    const q = (externalSearch || search).toLowerCase()
-    const matchesSearch =
-      inv.id.toLowerCase().includes(q) ||
-      inv.client.toLowerCase().includes(q) ||
-      inv.amount.toLowerCase().includes(q) ||
-      inv.date.includes(q) ||
-      inv.gstNo.toLowerCase().includes(q) ||
-      inv.status.toLowerCase().includes(q)
-
-    let matchesStatus = true
-    if (externalFilter !== 'All') {
-      matchesStatus = inv.status === externalFilter
+  // ── Delete (soft-cancel) ──────────────────────────────────────────────────
+  const handleDelete = async (invoice) => {
+    if (!window.confirm(`Cancel invoice ${invoice.id}? This cannot be undone.`)) return
+    setDeletingId(invoice.dbId)
+    try {
+      await deleteInvoice(invoice.dbId)
+      // Remove from local list immediately
+      setInvoices(prev => prev.filter(inv => inv.dbId !== invoice.dbId))
+      setTotal(t => t - 1)
+      onRefresh?.()
+    } catch (err) {
+      setError(`Failed to cancel invoice: ${err.message}`)
+    } finally {
+      setDeletingId(null)
     }
+  }
 
-    let matchesFY = true
-    if (fyFilter !== 'all') {
-      const fy = FINANCIAL_YEARS.find(f => f.value === fyFilter)
-      if (fy) matchesFY = inv.date >= fy.start && inv.date <= fy.end
-    }
-
-    return matchesSearch && matchesStatus && matchesFY
-  })
-
-  const totalPages = Math.ceil(filtered.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedInvoices = filtered.slice(startIndex, startIndex + itemsPerPage)
-
-  useEffect(() => { setCurrentPage(1) }, [search, fyFilter, externalFilter, externalSearch])
+  const totalPages = Math.ceil(total / itemsPerPage)
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -263,7 +308,6 @@ const InvoiceTable = ({ externalFilter = 'All', externalSearch = '', onEdit, onD
           from { opacity: 0; transform: translateY(-5px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        /* hide scrollbar on filter strip */
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
@@ -289,20 +333,41 @@ const InvoiceTable = ({ externalFilter = 'All', externalSearch = '', onEdit, onD
             </button>
           )}
         </div>
-        <FYFilter selected={fyFilter} onChange={setFyFilter} />
+        <div className="flex items-center gap-2">
+          {/* Total count */}
+          {!loading && (
+            <span className="text-xs text-gray-400 hidden sm:inline">
+              {total} invoice{total !== 1 ? 's' : ''}
+            </span>
+          )}
+          <FYFilter selected={fyFilter} onChange={setFyFilter} />
+        </div>
       </div>
 
-      {/* ── Mobile card list (< md) ── */}
+      {/* Error */}
+      {error && <ErrorBanner message={error} onRetry={loadInvoices} />}
+
+      {/* ── Mobile cards (< md) ── */}
       <div className="md:hidden">
-        {paginatedInvoices.length > 0 ? (
+        {loading ? (
           <div className="p-3 space-y-3">
-            {paginatedInvoices.map((invoice, idx) => (
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="bg-white rounded-lg border border-gray-200 p-4 animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-1/2 mb-2" />
+                <div className="h-4 bg-gray-200 rounded w-1/3" />
+              </div>
+            ))}
+          </div>
+        ) : invoices.length > 0 ? (
+          <div className="p-3 space-y-3">
+            {invoices.map((invoice, idx) => (
               <InvoiceCard
-                key={`${invoice.id}-${idx}`}
+                key={`${invoice.dbId ?? invoice.id}-${idx}`}
                 invoice={invoice}
-                onStatusChange={updateStatus}
-                onEdit={onEdit}
-                onDelete={onDelete}
+                onStatusChange={handleStatusChange}
+                onDelete={handleDelete}
+                updatingId={updatingId}
+                deletingId={deletingId}
               />
             ))}
           </div>
@@ -311,32 +376,42 @@ const InvoiceTable = ({ externalFilter = 'All', externalSearch = '', onEdit, onD
         )}
       </div>
 
-      {/* ── Desktop / tablet table (≥ md) ── */}
+      {/* ── Desktop table (≥ md) ── */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full min-w-[700px]">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               {['ID', 'Client', 'Amount', 'Date', 'GST No.', 'Status', 'Action'].map(h => (
-                <th key={h} className="px-4 lg:px-6 py-3 text-left text-xs font-bold text-black-500 uppercase tracking-wider whitespace-nowrap">
+                <th key={h} className="px-4 lg:px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">
                   {h}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {paginatedInvoices.length > 0 ? (
-              paginatedInvoices.map((invoice, idx) => (
-                <tr key={`${invoice.id}-${idx}`} className="hover:bg-gray-50 transition-colors">
+            {loading ? (
+              [...Array(itemsPerPage)].map((_, i) => <SkeletonRow key={i} />)
+            ) : invoices.length > 0 ? (
+              invoices.map((invoice, idx) => (
+                <tr key={`${invoice.dbId ?? invoice.id}-${idx}`} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 lg:px-6 py-3.5 text-sm text-gray-900 whitespace-nowrap">{invoice.id}</td>
                   <td className="px-4 lg:px-6 py-3.5 text-sm text-gray-600 max-w-[160px] truncate">{invoice.client}</td>
                   <td className="px-4 lg:px-6 py-3.5 text-sm font-semibold text-gray-900 whitespace-nowrap">{invoice.amount}</td>
                   <td className="px-4 lg:px-6 py-3.5 text-sm text-gray-500 whitespace-nowrap">{invoice.date}</td>
                   <td className="px-4 lg:px-6 py-3.5 text-sm text-gray-500 whitespace-nowrap hidden lg:table-cell">{invoice.gstNo}</td>
                   <td className="px-4 lg:px-6 py-3.5">
-                    <StatusDropdown value={invoice.status} onChange={(s) => updateStatus(invoice.id, s)} />
+                    <StatusDropdown
+                      value={invoice.status}
+                      loading={updatingId === invoice.dbId}
+                      onChange={(s) => handleStatusChange(invoice, s)}
+                    />
                   </td>
                   <td className="px-4 lg:px-6 py-3.5">
-                    <ActionDropdown invoiceId={invoice.id} onEdit={onEdit} onDelete={onDelete} />
+                    <ActionDropdown
+                      invoice={invoice}
+                      onDelete={handleDelete}
+                      deleting={deletingId === invoice.dbId}
+                    />
                   </td>
                 </tr>
               ))
@@ -350,7 +425,7 @@ const InvoiceTable = ({ externalFilter = 'All', externalSearch = '', onEdit, onD
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {!loading && totalPages > 1 && (
         <InvoicePagination
           currentPage={currentPage}
           totalPages={totalPages}
