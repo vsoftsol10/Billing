@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { listCustomers, createCustomer } from '../../api/customerService'
 
 const PAYMENT_MODES = ['UPI', 'Cash', 'Bank Transfer', 'Cheque', 'Card']
 
@@ -14,14 +15,13 @@ const dueDefault = () => {
 }
 
 // ─── Add New Client Modal ─────────────────────────────────────────────────────
-const AddNewClientModal = ({ onClose, onSave }) => {
+const AddNewClientModal = ({ onClose, onSave, isLoading }) => {
   const [form, setForm] = useState({
-    customerName: '',
-    companyName: '',
-    clientAddress: '',
-    gstNo: '',
-    emailAddress: '',
-    phoneNumber: '',
+    name: '',
+    email: '',
+    phone: '',
+    gstin: '',
+    address: '',
   })
 
   const set = (field) => (e) => setForm(p => ({ ...p, [field]: e.target.value }))
@@ -35,19 +35,22 @@ const AddNewClientModal = ({ onClose, onSave }) => {
     return () => document.removeEventListener('keydown', handler)
   }, [onClose])
 
-  const handleSave = () => {
-    if (!form.customerName.trim()) return
-    onSave(form)
-    onClose()
+  const handleSave = async () => {
+    if (!form.name.trim()) return
+    try {
+      await onSave(form)
+      onClose()
+    } catch (err) {
+      alert(`Failed to create customer: ${err.message}`)
+    }
   }
 
   const fields = [
-    { label: 'Customer Name',  key: 'customerName',  type: 'text',     rows: 1 },
-    { label: 'Company Name',   key: 'companyName',   type: 'text',     rows: 1 },
-    { label: 'Client Address', key: 'clientAddress', type: 'textarea', rows: 3 },
-    { label: 'GST No.',        key: 'gstNo',         type: 'text',     rows: 1 },
-    { label: 'Email Address',  key: 'emailAddress',  type: 'email',    rows: 1 },
-    { label: 'Phone Number',   key: 'phoneNumber',   type: 'tel',      rows: 1 },
+    { label: 'Customer Name',  key: 'name',    type: 'text',  rows: 1 },
+    { label: 'Email',          key: 'email',   type: 'email', rows: 1 },
+    { label: 'Phone',          key: 'phone',   type: 'tel',   rows: 1 },
+    { label: 'GST No.',        key: 'gstin',   type: 'text',  rows: 1 },
+    { label: 'Address',        key: 'address', type: 'textarea', rows: 3 },
   ]
 
   return (
@@ -69,7 +72,7 @@ const AddNewClientModal = ({ onClose, onSave }) => {
         `}</style>
 
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 flex-shrink-0">
-          <h2 className="text-base font-bold text-gray-900">Add New Client</h2>
+          <h2 className="text-base font-bold text-gray-900">Add New Customer</h2>
           <button
             onClick={onClose}
             className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
@@ -106,18 +109,20 @@ const AddNewClientModal = ({ onClose, onSave }) => {
         <div className="flex gap-3 px-5 py-4 border-t border-gray-200 flex-shrink-0">
           <button
             onClick={handleSave}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-400 text-gray-900 font-bold rounded-lg hover:bg-amber-500 active:bg-amber-600 transition-colors text-sm"
+            disabled={isLoading}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-400 text-gray-900 font-bold rounded-lg hover:bg-amber-500 active:bg-amber-600 disabled:opacity-50 transition-colors text-sm"
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
               <polyline points="17 21 17 13 7 13 7 21"/>
               <polyline points="7 3 7 8 15 8"/>
             </svg>
-            Save
+            {isLoading ? 'Saving...' : 'Save'}
           </button>
           <button
             onClick={onClose}
-            className="flex-1 flex items-center justify-center px-4 py-2.5 border border-gray-300 bg-white text-gray-700 font-semibold rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors text-sm"
+            disabled={isLoading}
+            className="flex-1 flex items-center justify-center px-4 py-2.5 border border-gray-300 bg-white text-gray-700 font-semibold rounded-lg hover:bg-gray-50 active:bg-gray-100 disabled:opacity-50 transition-colors text-sm"
           >
             Cancel
           </button>
@@ -132,9 +137,19 @@ const CreateQuotation = ({ onBack, onSave, onSaveDraft }) => {
   const [quotationNo] = useState(generateQuotationNumber)
   const [date, setDate] = useState(today())
   const [validUntil, setValidUntil] = useState(dueDefault())
+  
+  // Customer management
+  const [customers, setCustomers] = useState([])
   const [customerSearch, setCustomerSearch] = useState('')
   const [selectedCustomer, setSelectedCustomer] = useState(null)
+  const [showCustomerDropdown, setShowCustomerDropdown] = useState(false)
   const [showAddClient, setShowAddClient] = useState(false)
+  const [loadingCustomers, setLoadingCustomers] = useState(false)
+  const [savingCustomer, setSavingCustomer] = useState(false)
+
+  const customerDropdownRef = useRef(null)
+
+  // Items & payment
   const [items, setItems] = useState([])
   const [note, setNote] = useState('')
   const [terms, setTerms] = useState('')
@@ -142,6 +157,66 @@ const CreateQuotation = ({ onBack, onSave, onSaveDraft }) => {
   const [paymentMode, setPaymentMode] = useState('UPI')
   const [modeOpen, setModeOpen] = useState(false)
   const [gstRate] = useState(9)
+
+  // Fetch customers on mount
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      setLoadingCustomers(true)
+      try {
+        const data = await listCustomers()
+        setCustomers(data)
+      } catch (err) {
+        console.error('Failed to fetch customers:', err)
+      } finally {
+        setLoadingCustomers(false)
+      }
+    }
+    fetchCustomers()
+  }, [])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (customerDropdownRef.current && !customerDropdownRef.current.contains(e.target)) {
+        setShowCustomerDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Filter customers by search
+  const filteredCustomers = customers.filter(c =>
+    c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
+    (c.email && c.email.toLowerCase().includes(customerSearch.toLowerCase())) ||
+    (c.phone && c.phone.includes(customerSearch))
+  )
+
+  const handleAddCustomer = async (formData) => {
+    setSavingCustomer(true)
+    try {
+      const newCustomer = await createCustomer(formData)
+      setCustomers(p => [...p, newCustomer])
+      setSelectedCustomer(newCustomer)
+      setCustomerSearch(newCustomer.name)
+      setShowCustomerDropdown(false)
+    } catch (err) {
+      throw err
+    } finally {
+      setSavingCustomer(false)
+    }
+  }
+
+  const handleSelectCustomer = (customer) => {
+    setSelectedCustomer(customer)
+    setCustomerSearch(customer.name)
+    setShowCustomerDropdown(false)
+  }
+
+  const handleClearCustomer = () => {
+    setSelectedCustomer(null)
+    setCustomerSearch('')
+  }
 
   const addItem = () => setItems(p => [...p, { id: Date.now(), name: '', description: '', hsn: '', qty: 1, rate: 0 }])
   const updateItem = (id, field, value) => setItems(p => p.map(it => it.id === id ? { ...it, [field]: value } : it))
@@ -153,12 +228,17 @@ const CreateQuotation = ({ onBack, onSave, onSaveDraft }) => {
   const total = subtotal + cgst + sgst
   const fmt = (n) => `₹${Number(n).toFixed(2)}`
 
-  const handleClientSave = (clientData) => {
-    setSelectedCustomer(clientData)
-    setCustomerSearch(clientData.customerName)
-  }
-
-  const payload = () => ({ quotationNo, date, validUntil, items, note, terms, total, customer: selectedCustomer })
+  const payload = () => ({
+    customerId: selectedCustomer?.id || null,
+    issueDate: date,
+    validUntil,
+    items,
+    notes: note,
+    terms,
+    paidAmount: paymentAmount,
+    paymentMode: paymentMode.toUpperCase().replace(' ', '_'),
+    gstRate,
+  })
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -166,7 +246,8 @@ const CreateQuotation = ({ onBack, onSave, onSaveDraft }) => {
       {showAddClient && (
         <AddNewClientModal
           onClose={() => setShowAddClient(false)}
-          onSave={handleClientSave}
+          onSave={handleAddCustomer}
+          isLoading={savingCustomer}
         />
       )}
 
@@ -243,52 +324,79 @@ const CreateQuotation = ({ onBack, onSave, onSaveDraft }) => {
           </div>
 
           {/* Customer row */}
-          <div className="flex gap-3 items-center">
-            <div className="relative flex-1">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
-              <input
-                type="text"
-                placeholder="Search customer"
-                value={customerSearch}
-                onChange={e => setCustomerSearch(e.target.value)}
-                className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-amber-400 transition-colors bg-white"
-              />
-            </div>
-            <button
-              onClick={() => setShowAddClient(true)}
-              className="flex items-center gap-1.5 px-4 py-2 bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-500 active:bg-amber-600 transition-colors text-sm whitespace-nowrap flex-shrink-0"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-              </svg>
-              Add Customer
-            </button>
-          </div>
-
-          {/* Selected customer chip */}
-          {selectedCustomer && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg w-fit">
-              <div className="w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center text-xs font-bold text-gray-900 flex-shrink-0">
-                {selectedCustomer.customerName.charAt(0).toUpperCase()}
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-gray-800 truncate">{selectedCustomer.customerName}</p>
-                {selectedCustomer.companyName && (
-                  <p className="text-xs text-gray-500 truncate">{selectedCustomer.companyName}</p>
+          <div className="space-y-3">
+            <div className="flex gap-3 items-stretch">
+              <div ref={customerDropdownRef} className="relative flex-1">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input
+                  type="text"
+                  placeholder={loadingCustomers ? "Loading customers..." : "Search or select customer"}
+                  value={customerSearch}
+                  onChange={e => { setCustomerSearch(e.target.value); setShowCustomerDropdown(true) }}
+                  onFocus={() => setShowCustomerDropdown(true)}
+                  disabled={loadingCustomers}
+                  className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-amber-400 transition-colors bg-white disabled:bg-gray-100"
+                />
+                {showCustomerDropdown && customerSearch && !selectedCustomer && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-30 max-h-48 overflow-y-auto">
+                    {filteredCustomers.length > 0 ? (
+                      filteredCustomers.map(customer => (
+                        <button
+                          key={customer.id}
+                          type="button"
+                          onClick={() => handleSelectCustomer(customer)}
+                          className="w-full text-left px-3 py-2.5 text-sm text-gray-700 hover:bg-amber-50 transition-colors border-b border-gray-100 last:border-b-0"
+                        >
+                          <div className="font-medium">{customer.name}</div>
+                          {customer.email && <div className="text-xs text-gray-500">{customer.email}</div>}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-3 py-6 text-center text-xs text-gray-400">
+                        No customers found matching "{customerSearch}"
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
               <button
-                onClick={() => { setSelectedCustomer(null); setCustomerSearch('') }}
-                className="ml-1 text-gray-400 hover:text-gray-600 flex-shrink-0"
+                type="button"
+                onClick={() => setShowAddClient(true)}
+                className="flex items-center gap-1.5 px-4 py-2 bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-500 active:bg-amber-600 transition-colors text-sm whitespace-nowrap flex-shrink-0"
               >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
                 </svg>
+                New Customer
               </button>
             </div>
-          )}
+
+            {/* Selected customer chip */}
+            {selectedCustomer && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg w-fit">
+                <div className="w-6 h-6 bg-green-400 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                  {selectedCustomer.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-gray-800 truncate">{selectedCustomer.name}</p>
+                  {selectedCustomer.email && (
+                    <p className="text-xs text-gray-500 truncate">{selectedCustomer.email}</p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleClearCustomer}
+                  className="ml-1 text-gray-400 hover:text-gray-600 flex-shrink-0"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Items Table */}
           <div>

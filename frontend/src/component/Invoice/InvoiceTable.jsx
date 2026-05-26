@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import InvoicePagination from './InvoicePagination'
 import { fetchInvoices, updateInvoiceStatus, deleteInvoice } from '../../api/invoiceService'
 
@@ -39,6 +40,8 @@ const SkeletonRow = () => (
 const StatusDropdown = ({ value, onChange, loading }) => {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
+  const buttonRef = useRef(null)
+  const [position, setPosition] = useState({ top: 0, left: 0 })
 
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
@@ -46,9 +49,21 @@ const StatusDropdown = ({ value, onChange, loading }) => {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
+  // Update dropdown position when opened
+  useEffect(() => {
+    if (open && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      setPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX
+      })
+    }
+  }, [open])
+
   return (
     <div className="relative w-fit" ref={ref}>
       <span
+        ref={buttonRef}
         onClick={() => !loading && setOpen(p => !p)}
         className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-fit
           ${loading ? 'opacity-50 cursor-wait' : 'cursor-pointer select-none'}
@@ -61,9 +76,14 @@ const StatusDropdown = ({ value, onChange, loading }) => {
           </svg>
         )}
       </span>
-      {open && (
-        <div className="absolute left-0 mt-1 w-36 bg-white rounded-lg border border-gray-200 shadow-lg z-30 overflow-hidden"
-          style={{ animation: 'fadeSlideDown 0.12s ease' }}>
+      {open && createPortal(
+        <div 
+          className="fixed w-36 bg-white rounded-lg border border-gray-200 shadow-lg z-50 overflow-hidden"
+          style={{ 
+            animation: 'fadeSlideDown 0.12s ease',
+            top: `${position.top}px`,
+            left: `${position.left}px`,
+          }}>
           {STATUS_OPTIONS.map(s => (
             <button key={s}
               onClick={() => { onChange(s); setOpen(false) }}
@@ -71,7 +91,8 @@ const StatusDropdown = ({ value, onChange, loading }) => {
               <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getStatusColor(s)}`}>{s}</span>
             </button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
@@ -81,6 +102,8 @@ const StatusDropdown = ({ value, onChange, loading }) => {
 const ActionDropdown = ({ invoice, onDelete, deleting }) => {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
+  const buttonRef = useRef(null)
+  const [position, setPosition] = useState({ top: 0, right: 0 })
 
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
@@ -88,9 +111,20 @@ const ActionDropdown = ({ invoice, onDelete, deleting }) => {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
+  // Update dropdown position when opened
+  useEffect(() => {
+    if (open && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      setPosition({
+        top: rect.bottom + window.scrollY + 4,
+        right: window.innerWidth - rect.right + window.scrollX
+      })
+    }
+  }, [open])
+
   return (
     <div className="relative" ref={ref}>
-      <button onClick={() => setOpen(p => !p)}
+      <button ref={buttonRef} onClick={() => setOpen(p => !p)}
         className="text-gray-400 hover:text-gray-600 transition-colors p-1.5 rounded-md hover:bg-gray-100">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
           <circle cx="12" cy="5" r="2"/>
@@ -98,9 +132,14 @@ const ActionDropdown = ({ invoice, onDelete, deleting }) => {
           <circle cx="12" cy="19" r="2"/>
         </svg>
       </button>
-      {open && (
-        <div className="absolute right-0 mt-1 w-32 bg-white rounded-lg border border-gray-200 shadow-lg z-30 overflow-hidden"
-          style={{ animation: 'fadeSlideDown 0.12s ease' }}>
+      {open && createPortal(
+        <div 
+          className="fixed w-32 bg-white rounded-lg border border-gray-200 shadow-lg z-50 overflow-hidden"
+          style={{ 
+            animation: 'fadeSlideDown 0.12s ease',
+            top: `${position.top}px`,
+            right: `${position.right}px`,
+          }}>
           <button
             onClick={() => { setOpen(false); onDelete(invoice) }}
             disabled={deleting}
@@ -117,7 +156,8 @@ const ActionDropdown = ({ invoice, onDelete, deleting }) => {
             )}
             {deleting ? 'Cancelling…' : 'Delete'}
           </button>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
@@ -127,6 +167,8 @@ const ActionDropdown = ({ invoice, onDelete, deleting }) => {
 const FYFilter = ({ selected, onChange }) => {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
+  const buttonRef = useRef(null)
+  const [position, setPosition] = useState({ top: 0, right: 0 })
 
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
@@ -134,11 +176,22 @@ const FYFilter = ({ selected, onChange }) => {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
+  // Update dropdown position when opened
+  useEffect(() => {
+    if (open && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      setPosition({
+        top: rect.bottom + window.scrollY + 4,
+        right: window.innerWidth - rect.right + window.scrollX
+      })
+    }
+  }, [open])
+
   const current = FINANCIAL_YEARS.find(f => f.value === selected)
 
   return (
     <div className="relative flex-shrink-0" ref={ref}>
-      <button onClick={() => setOpen(p => !p)}
+      <button ref={buttonRef} onClick={() => setOpen(p => !p)}
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <rect x="3" y="4" width="18" height="18" rx="2"/>
@@ -152,9 +205,14 @@ const FYFilter = ({ selected, onChange }) => {
           <polyline points="6 9 12 15 18 9"/>
         </svg>
       </button>
-      {open && (
-        <div className="absolute right-0 mt-1 w-40 bg-white rounded-lg border border-gray-200 shadow-lg z-30 overflow-hidden"
-          style={{ animation: 'fadeSlideDown 0.12s ease' }}>
+      {open && createPortal(
+        <div 
+          className="fixed bg-white rounded-lg border border-gray-200 shadow-lg z-50 overflow-hidden w-40"
+          style={{ 
+            animation: 'fadeSlideDown 0.12s ease',
+            top: `${position.top}px`,
+            right: `${position.right}px`,
+          }}>
           {FINANCIAL_YEARS.map(fy => (
             <button key={fy.value} onClick={() => { onChange(fy.value); setOpen(false) }}
               className={`w-full text-left px-4 py-2.5 text-xs font-medium transition-colors
@@ -162,7 +220,8 @@ const FYFilter = ({ selected, onChange }) => {
               {fy.label}
             </button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
