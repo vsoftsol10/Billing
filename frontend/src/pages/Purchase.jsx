@@ -178,9 +178,11 @@ export default function Purchase() {
           onClick={() => setMobileSidebarOpen(false)}
         />
       )}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-52">
         <Navbar
           title={showCreate ? "Create Purchase" : "Purchase"}
+          subtitle={true}
+          user="VBILL"
           onMenuToggle={() => setMobileSidebarOpen(true)}
         />
         {children}

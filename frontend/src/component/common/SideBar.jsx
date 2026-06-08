@@ -226,7 +226,7 @@ const Sidebar = ({ activeItem = 'Dashboard', onNavigate, mobileOpen, onMobileClo
   return (
     <>
       {/* ── Desktop sidebar (lg+): always visible ── */}
-      <aside className="hidden lg:flex w-52 min-h-screen bg-white border-r border-gray-100 flex-col shrink-0">
+      <aside className="hidden lg:block lg:fixed left-0 top-0 w-52 h-screen bg-white border-r border-gray-100 z-30 overflow-y-auto">
         <SidebarContent
           activeItem={activeItem}
           handleNavigation={handleNavigation}
@@ -245,7 +245,7 @@ const Sidebar = ({ activeItem = 'Dashboard', onNavigate, mobileOpen, onMobileClo
           />
           {/* Drawer panel */}
           <aside
-            className="relative z-50 w-64 max-w-[80vw] min-h-screen bg-white flex flex-col shadow-2xl"
+            className="fixed left-0 top-0 z-50 w-64 max-w-[80vw] h-screen bg-white flex flex-col shadow-2xl overflow-y-auto"
             style={{ animation: 'slideInLeft 0.22s ease' }}
           >
             <SidebarContent

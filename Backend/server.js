@@ -8,6 +8,7 @@ import inventoryRouter from './routes/inventoryroutes.js'
 import invoiceRouter from './routes/invoiceRoute.js'
 import customerRouter from './routes/customerRoute.js'
 import quotationRouter from './routes/quotationRoute.js'
+import ewayBillRouter from './routes/ewayBillRoute.js'
 
 dotenv.config()
 
@@ -28,6 +29,7 @@ app.use('/api/inventory',  inventoryRouter)
 app.use('/api/invoices',   invoiceRouter)
 app.use('/api/customers',  customerRouter)
 app.use('/api/quotations', quotationRouter)
+app.use('/api/ewaybill', ewayBillRouter)
 
 // Health check
 app.get('/', (req, res) => {

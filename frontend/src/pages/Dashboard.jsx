@@ -10,7 +10,7 @@ const DashboardPage = ({ user = 'VBILL' }) => {
 
   return (
     <div className="flex min-h-screen bg-gray-50/60">
-      {/* Sidebar sits here, as a flex sibling */}
+      {/* Sidebar sits here, as a fixed element */}
       <Sidebar
         activeItem="Dashboard"
         mobileOpen={mobileSidebarOpen}
@@ -18,7 +18,7 @@ const DashboardPage = ({ user = 'VBILL' }) => {
       />
 
       {/* Right side: topbar + content */}
-      <div className="flex-1 flex flex-col overflow-y-auto">
+      <div className="flex-1 flex flex-col overflow-y-auto lg:ml-52">
         <Navbar
           title="Dashboard"
           subtitle

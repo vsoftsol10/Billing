@@ -202,7 +202,7 @@ const Quotation = () => {
           onClick={() => setMobileSidebarOpen(false)}
         />
       )}
-      <div className="flex-1 flex flex-col min-w-0 w-full overflow-auto">
+      <div className="flex-1 flex flex-col min-w-0 w-full overflow-auto lg:ml-52">
         {children}
       </div>
     </div>

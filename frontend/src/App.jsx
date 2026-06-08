@@ -17,6 +17,7 @@ import CreateQuotation from './component/Quotation/CreateQuotation';
 import CreatePurchase from './component/Purchase/CreatePurchase';
 import CreateInvoice from './component/Invoice/CreateInvoice';
 import ResetPassword from './pages/Resetpassword';
+import TallySync from './pages/TallySync';
 
 // Simple auth guard — replace with your actual auth logic (context/redux/jwt check)
 const PrivateRoute = ({ children }) => {
@@ -84,6 +85,14 @@ const App = () => {
           element={
             <PrivateRoute>
               <Purchase />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/tally-sync"
+          element={
+            <PrivateRoute>
+              <TallySync />
             </PrivateRoute>
           }
         />

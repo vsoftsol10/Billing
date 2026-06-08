@@ -116,7 +116,7 @@ export default function InviteUserTable({ users, onView, onEdit, onDelete }) {
               ))}
             </tr>
           </thead>
-          <tbody>                                                                                                                                                               
+          <tbody>
             {users.map((user, i) => (
               <tr
                 key={user.id}

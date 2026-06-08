@@ -43,7 +43,7 @@ export default function InviteUser() {
         onMobileClose={() => setMobileSidebarOpen(false)}
       />
 
-      <div className="flex-1 flex flex-col overflow-y-auto">
+      <div className="flex-1 flex flex-col overflow-y-auto lg:ml-52">
         <Navbar
           title="Invite User"
           subtitle="Manage user invitations and access"
